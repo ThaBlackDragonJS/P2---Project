@@ -1,5 +1,7 @@
 P2---Project
------------------Coding standards--------------------
+
+-----------------Coding standards--------------
+
 https://developer.wordpress.org/coding-standards/wordpress-coding-standards/javascript/
 
 Coding standards:
