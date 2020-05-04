@@ -1,6 +1,7 @@
 
 //input: email (string) + max output size (database array length)
 //output: array index "suggestion" for the given email
+var max = 727;
 function hash_function(email, max){
   let charCodeArray = [];
   let i = 0, 
