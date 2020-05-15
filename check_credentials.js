@@ -16,7 +16,9 @@ exports.login_check = function(encryptedEmail, encryptedPassword, callback) {
 			if (err) {throw err};
 			//console.log(result.length);
 			if (result.length > 0){
-				con.query("SELECT Password FROM Account WHERE Password = ?", encryptedPassword , function (err, result, fields) {
+				let command = "SELECT Password AND Email FROM Account WHERE Password = ? AND Email = ?";
+				let values = [encryptedPassword,encryptedEmail];
+				con.query(command, values , function (err, result, fields) {
 					if(result.length > 0){
 						console.log("Login was successful - return login validation command");
 						callback(1);
