@@ -704,7 +704,7 @@ function requirement_checker(passwordData, passwordObjects, gridWidth, gridHeigh
     }
 
 
-function sign_in_finish() {
+function login_finish() {
   //make a new XML http request
   let xhr = new XMLHttpRequest();
   //get and send the email
@@ -726,7 +726,7 @@ function sign_in_finish() {
             let serverResponse2 = xhr2.responseText;
             if(serverResponse2 == "success") {
               alert("Sign in successful!")
-              //redirect to the page that tells you the signin was successful
+              //redirect to the page that tells you the login was successful
               //window.location.replace(window.location.href + "SignedIn");
             }else if (serverResponse2 == "failure") {
               alert("wrong password");
@@ -748,7 +748,7 @@ function sign_in_finish() {
             let serverResponse2 = xhr2.responseText;
             if(serverResponse2 == "success") {
               alert("Sign in successful!")
-              //redirect to the page that tells you the signin was successful
+              //redirect to the page that tells you the login was successful
               //window.location.replace(window.location.href + "SignedIn");
             }else if (serverResponse2 == "failure") {
               alert("wrong password");

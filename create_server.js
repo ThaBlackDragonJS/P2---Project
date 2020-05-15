@@ -20,7 +20,7 @@ let server = createServer((request, response) => {
   //send the HTML file, and other files required for it
   if(request.method == "GET") {
     switch(request.url) {
-      //---------------------------Index section-------------------------------
+      //---------------------------Index section + email-------------------------------
       case "/":
         response.writeHead(200, {"Content-Type": "text/html"});
         fs.readFile('index.html', function(err, content){
@@ -35,12 +35,10 @@ let server = createServer((request, response) => {
           response.end();
         });
         break;
-      //-----------------------Login: Email section----------------------------
-
       //-----------------------Login: Password section-------------------------
-      case "/SignInPassword": 
+      case "/loginPassword": 
         response.writeHead(200, {"Content-Type": "text/html"});
-        fs.readFile('SignInPassword.html', function(err, content){
+        fs.readFile('loginPassword.html', function(err, content){
           response.write(content);
           response.end();
         });
@@ -73,10 +71,8 @@ let server = createServer((request, response) => {
           response.end();
         });
         break;
-      //-----------------------------Account creator: Email section-----------------------------
-      
       //-----------------------------Account creator: Password section------------------------------
-
+      
       //-----------------------------Misc---------------------------------
       case "/getPassword":
         response.writeHead(200);
@@ -101,6 +97,7 @@ let server = createServer((request, response) => {
   } else if (request.method == "POST") {
     //console.log('POST');
     switch(request.url) {
+      //------------------------login: email part--------------------------
       case "/": 
         body = '';
         //loads data
@@ -152,7 +149,8 @@ let server = createServer((request, response) => {
           }
         });
         break;
-      case "/SignInPassword":
+        //-----------------------------login: password part-------------------------------
+      case "/loginPassword":
         body = '';
         //loads data
         request.on('data', function(data) {
@@ -184,8 +182,8 @@ let server = createServer((request, response) => {
           //writes back an answer
           response.writeHead(200, {'Content-Type': 'text/html'});
           //check if the encrypted email is in the database
-          let loginCorrect = check_credentials.login_check(origEmail, origPassword, callback_sign_in_function);
-          function callback_sign_in_function(loginCorrect) {
+          let loginCorrect = check_credentials.login_check(origEmail, origPassword, callback_login_function);
+          function callback_login_function(loginCorrect) {
             if(loginCorrect) {
               response.write("success");
             }else {
@@ -195,6 +193,7 @@ let server = createServer((request, response) => {
           }
         });
         break;
+        //------------------------------misc------------------------------
       default:
         console.log("Error: POST wrong url");
         console.log(request.url);
