@@ -675,11 +675,29 @@ function requirement_checker(passwordData, passwordObjects, gridWidth, gridHeigh
         if(connectedInputNodes !== 0) {
           //if it's the same node as last then it doesn't count as a new one
           if(connectedInputData[connectedInputNodes-1].id !== inputEvent.path[0].id){
-            connectedInputData[connectedInputNodes] = [];
-            connectedInputData[connectedInputNodes].type = "hover";
-            connectedInputData[connectedInputNodes].id = inputEvent.path[0].id;
-            ++connectedInputNodes;
-            //console.log("hover detected"); 
+            //if the node is not within the 8 sorrounding the previous node, it also doesn't count
+            //first get the X and Y coordinates of the current and previous nodes
+            let currentX = parseInt(inputEvent.path[0].id[7]);
+            let currentY = parseInt(inputEvent.path[0].id[9]);
+            let priorX = parseInt(connectedInputData[connectedInputNodes-1].id[7]);
+            let priorY = parseInt(connectedInputData[connectedInputNodes-1].id[9]);
+            /*console.log("cX, cY, pX, pY");
+            console.log(currentX + " | " + currentY + " | " + priorX + " | " + priorY);
+            console.log("priorX-1 <= currentX: " + (priorX-1 <= currentX));
+            console.log("currentX <= priorX+1: " + (currentX <= (priorX+1)));
+            console.log("X coordinate within: " + (priorX-1 <= currentX && currentX <= priorX+1));*/
+            //then check if the X coordinate is within 1 distance
+            //priorX-1 <= currentX <= priorX+1
+            if(priorX-1 <= currentX && currentX <= priorX+1) {
+              //lastly do the same check for Y coordinate
+              if(priorY-1 <= currentY && currentY <= priorY+1) {
+                connectedInputData[connectedInputNodes] = [];
+                connectedInputData[connectedInputNodes].type = "hover";
+                connectedInputData[connectedInputNodes].id = inputEvent.path[0].id;
+                ++connectedInputNodes;
+                console.log("hover detected"); 
+              }
+            }
           }
         }
       } else if (inputType === "release") {
