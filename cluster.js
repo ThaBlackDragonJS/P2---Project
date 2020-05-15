@@ -98,6 +98,10 @@ function password_hash(password){
 //SHA-256 hashing function
 //Borrowed the SHA-256 function from https://geraintluff.github.io/sha256/ Created by geraintluff
 
+exports.call_sha256 = function(ascii) {
+	return sha256(ascii);
+}
+
 function sha256(ascii) {
 	
 	function rightRotate(value, amount) {

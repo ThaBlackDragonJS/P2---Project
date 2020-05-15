@@ -189,13 +189,14 @@ let server = createServer((request, response) => {
           }
 
           const origEmail = AesCtr.decrypt(encryptedEmail, encryptionPassword, 256);
-          const origPassword = AesCtr.decrypt(encryptedPassword, encryptionPassword, 256); //needs to be hashed later
+          const origPassword = AesCtr.decrypt(encryptedPassword, encryptionPassword, 256);
+          const hashedPassword = cluster.call_sha256(origPassword);
           //console.log("email: " + origEmail);
           //console.log("password: " + origPassword);
           //writes back an answer
           response.writeHead(200, {'Content-Type': 'text/html'});
           //check if the encrypted email is in the database
-          let loginCorrect = check_credentials.login_check(origEmail, origPassword, callback_login_function);
+          let loginCorrect = check_credentials.login_check(origEmail, hashedPassword, callback_login_function);
           function callback_login_function(loginCorrect) {
             if(loginCorrect) {
               response.write("success");
@@ -234,11 +235,11 @@ let server = createServer((request, response) => {
           //decrypt
           const origEmail = AesCtr.decrypt(encryptedEmail, encryptionPassword, 256);
           const origPassword = AesCtr.decrypt(encryptedPassword, encryptionPassword, 256); //needs to be hashed later
-
+          const hashedPassword = cluster.call_sha256(origPassword);
 
           //save the user in database
           let userID = cluster.hash_function(origEmail, maxID);
-          cluster.register_account(origEmail, origPassword, userID, callback_sign_up_function);
+          cluster.register_account(origEmail, hashedPassword, userID, callback_sign_up_function);
           
           //give back answer
           response.writeHead(200, {'Content-Type': 'text/html'});
