@@ -1,1 +1,102 @@
-//Index page.
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="index.css">
+  <title>Landing page</title>
+
+</head>
+<body>
+  <!--Header text-->
+  <div id="header" class="header">
+    <p id="title" class="title">Hey!</p>
+    <p id="subtitle" class="subTitle">Do you want to login or sign up?</p>
+  </div>
+
+
+<!--Landing page-->
+<div class="emailInputform">
+  <form action="insert server here" method="POST">
+    <p class="emailInputFlavorText">Please enter your email below</p>
+    <input type="email" maxlength="576" required id="emailInputField" name="email" placeholder="some@email.com">
+
+    <!--Sign up button-->
+    <input type="submit" id="signupButton" class="signupButton" value="Sign up" onClick="sign_in_or_up('SignUpPassword')"></button>
+
+    <!--Login button-->
+    <input type="submit" id="loginButton" class="loginButton" value="Login" onClick="sign_in_or_up('SignInPassword')"></button>
+  </form>
+</div>
+
+<script src="aes.js"></script> <!-- for AES256 encryption -->
+<script>
+  function sign_in_or_up(inOrUp) {
+    //make a new XML http request
+    let xhr = new XMLHttpRequest();
+    //get and send the email
+    let email = document.getElementById("emailInputField").value;
+    xhr.open("POST", window.location.href, true); //find out what that "true" value is for
+    xhr.setRequestHeader('Content-Type', 'application/json'); //find out if it needs to be json
+    //wait for response
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState === 4)  { 
+        //server has now given response
+        let serverResponse = xhr.responseText;
+        console.log(serverResponse);
+        if(serverResponse == "success") {
+          //redirect to password input
+          window.location.replace(window.location.href + inOrUp);
+        }
+      }
+    };
+    let encryptedEmail = encrypt_string(email, get_password());
+    if(inOrUp == 'SignInPassword') {
+      xhr.send("sign in " + encryptedEmail);
+    }else if(inOrUp == 'SignUpPassword') {
+      xhr.send("sign up " + encryptedEmail);
+    }
+  }
+
+  function get_password() {
+    let output = "";
+    let xhr = new XMLHttpRequest();
+    xhr.open("GET", window.location.href + "getPassword", true);
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState === 4) {
+        output = xhr.responseText;
+      }
+    }
+    xhr.send();
+    return output;
+  }
+
+
+
+  //https://www.npmjs.com/package/crypto-js
+  //https://cryptojs.gitbook.io/docs/
+  //https://code.google.com/archive/p/crypto-js/
+
+  //teststring
+  //var testString = "rfajewriofjwaoigfejb ioergniggdyeiuafreygiueraybiuerayrteaiubyer";
+
+  function encrypt_string(input, password){ 
+
+    //input != string error handling
+    if (typeof input != "string"){
+      console.log("encrypt_string - error: input is not a string");
+      return;
+    }
+
+    //encrypting function
+    const ciphertext = Aes.Ctr.encrypt(input, password, 256);
+
+    //returns encrypted string
+    return ciphertext;
+  }
+
+</script>
+
+
+</body>
+</html>
