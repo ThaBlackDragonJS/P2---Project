@@ -13,7 +13,13 @@ const AesCtr = require("./aes");
 //the encryption password for AES
 const encryptionPassword = "testpassword"
 
+
+//other values
 let body = '';
+//a prime number halfway between two powers of 2 - should be good for hashing
+//used for assigning an ID to users, however, the implementation has not been entirely completed.
+//currently, different users can get the same ID, since the re-index function has not been used.
+const maxID = 7069;
 
 
 let server = createServer((request, response) => {
@@ -35,7 +41,7 @@ let server = createServer((request, response) => {
           response.end();
         });
         break;
-      //-----------------------Login: Password section-------------------------
+      //-----------------------------Login: Password section-------------------------
       case "/loginPassword": 
         response.writeHead(200, {"Content-Type": "text/html"});
         fs.readFile('loginPassword.html', function(err, content){
@@ -43,6 +49,15 @@ let server = createServer((request, response) => {
           response.end();
         });
         break;
+      //-----------------------------Sign up: Password section------------------------------
+      case "/signUpPassword":
+        response.writeHead(200, {"content-type": "text/html"});
+        fs.readFile("signUpPassword.html", function(err, content){
+          response.write(content);
+          response.end();
+        });
+        break;
+      //----------------------------password input---------------------------
       case "/password.css":
         response.writeHead(200, {"Content-Type": "text/css"})
         fs.readFile('password.css', function(err, content){
@@ -71,8 +86,6 @@ let server = createServer((request, response) => {
           response.end();
         });
         break;
-      //-----------------------------Account creator: Password section------------------------------
-      
       //-----------------------------Misc---------------------------------
       case "/getPassword":
         response.writeHead(200);
@@ -97,7 +110,7 @@ let server = createServer((request, response) => {
   } else if (request.method == "POST") {
     //console.log('POST');
     switch(request.url) {
-      //------------------------login: email part--------------------------
+      //------------------------Index / email part--------------------------
       case "/": 
         body = '';
         //loads data
@@ -149,7 +162,7 @@ let server = createServer((request, response) => {
           }
         });
         break;
-        //-----------------------------login: password part-------------------------------
+      //-----------------------------login: password part-------------------------------
       case "/loginPassword":
         body = '';
         //loads data
@@ -193,7 +206,55 @@ let server = createServer((request, response) => {
           }
         });
         break;
-        //------------------------------misc------------------------------
+      //---------------------------Signup: password part----------------------
+      case "/signUpPassword":
+        body = '';
+        //loads data
+        request.on('data', function(data) {
+          body += data;
+          //console.log('Partial body: ' + body);
+        });
+        request.on("end", function() {
+          //here, the data contains the encrypted email and password
+          //first split it into email and password
+          let encryptedEmail = "",
+              encryptedPassword = "";
+          let i = 0;
+
+          //the first space separates the email from the password
+          while(body[i] != " ") {
+            encryptedEmail += body[i];
+            ++i;
+          } //i is now at the space
+          ++i;
+          //continue until there's no more data
+          for(i; i < body.length; ++i) {
+            encryptedPassword += body[i];
+          }
+          //decrypt
+          const origEmail = AesCtr.decrypt(encryptedEmail, encryptionPassword, 256);
+          const origPassword = AesCtr.decrypt(encryptedPassword, encryptionPassword, 256); //needs to be hashed later
+
+
+          //save the user in database
+          let userID = cluster.hash_function(origEmail, maxID);
+          cluster.register_account(origEmail, origPassword, userID, callback_sign_up_function);
+          
+          //give back answer
+          response.writeHead(200, {'Content-Type': 'text/html'});
+          function callback_sign_up_function(signUpSuccess) {
+            if(signUpSuccess) {
+              console.log("user signed up");
+              response.write("success");
+            }else {
+              console.log("signup failed");
+              response.write("failure");
+            }
+            response.end();
+          }
+        });
+        break;
+      //------------------------------misc------------------------------
       default:
         console.log("Error: POST wrong url");
         console.log(request.url);

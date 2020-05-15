@@ -18,7 +18,7 @@ console.log("Password after hashing:" + Password);
 console.log("Email ID is now:       " + EmailID);
 
 */
-function hash_function(email, max){
+exports.hash_function = function(email, max){
   let charCodeArray = [];
   let i = 0, 
       j = 0, 
@@ -64,7 +64,7 @@ function hash_function(email, max){
     hashNumber *= emailNumber;
     hashNumber = hashNumber % max;
   }
-	console.log(hashNumber + "Hashnumber");
+	//console.log(hashNumber + "Hashnumber");
   return hashNumber;
 }
 
@@ -197,37 +197,49 @@ function sha256(ascii) {
 };
 
 
-exports.register_account = function(encryptedEmail,hashedPassword, hash){
-
+exports.register_account = function(email,hashedPassword, hash, callback){
 	const connect_mysql = require("./connect_mysql");
-	let con = connect_mysql;
-
+	let con = connect_mysql.connect();
+	//console.log("email: " + email);
+	//console.log("password: " + hashedPassword);
+	//console.log("hash: " + hash);
 	con.connect(function(err) {
-	if (err) throw err;
+		if (err) {
+			console.log("error");
+			throw err;
+		}
 		console.log("Connected!");
-		con.query("SELECT Email FROM Account WHERE Email = ?", encryptedEmail , function (err, result, fields) {
+		con.query("SELECT Email FROM Account WHERE Email = ?", email , function (err, result, fields) {
 			if (err) throw err;
-		console.log(result.length);
+		  console.log(result.length);
 			if (result.length > 0){
 				console.log("Account already exists");
 				//Return Error message.
+				callback(0);
 			}else{
-				insert(encryptedEmail, hashedPassword, hash);
+				insert(email, hashedPassword, hash, register_callback);
+				function register_callback(successBool) {
+					callback(successBool);
+				}
 			}
 		});
 	});
+}
 
-	function insert(encryptedEmail, hashedPassword, hash){
-		
-		
-		//Inserts Email and Password into Account Table in Database mydb
-		var sql = "INSERT INTO Account (Email, Password, HashID) VALUES ?";
-		var values = [[encryptedEmail,hashedPassword,hash]];
-		con.query(sql,[values], function (err, result) {
-			//Throws if the length of the inputted strings are too long.
+
+
+function insert(email, hashedPassword, hash, callback){
+	const connect_mysql = require("./connect_mysql");
+	let con = connect_mysql.connect();
+	//Inserts Email and Password into Account Table in Database mydb
+	var sql = "INSERT INTO Account (Email, Password, HashID) VALUES ?";
+	var values = [[email,hashedPassword,hash]];
+	con.query(sql,[values], function (err, result) {
+		//Throws if the length of the inputted strings are too long.
 		//512 for Email and 264 for Password
 		if (err) throw err; 
-			console.log("Number of records inserted: " + result.affectedRows);
-		});
-	};
+		console.log("Number of records inserted: " + result.affectedRows);
+		//return success message
+		callback(1);
+	});
 };

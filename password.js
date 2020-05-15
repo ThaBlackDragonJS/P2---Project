@@ -704,7 +704,7 @@ function requirement_checker(passwordData, passwordObjects, gridWidth, gridHeigh
     }
 
 
-function login_finish() {
+function sign_in_or_up_finish(inOrUp) {
   //make a new XML http request
   let xhr = new XMLHttpRequest();
   //get and send the email
@@ -716,53 +716,43 @@ function login_finish() {
     if (xhr.readyState === 4)  { 
       //server has now given response
       let serverResponse = xhr.responseText;
-      if(serverResponse == "success") {
-        //needs to be sent twice - could be made better, but the cause for sending incorrectly first is unknown
-        let xhr2 = new XMLHttpRequest();
-        xhr2.open("POST", window.location.href, true);
-        xhr2.setRequestHeader("content-type", "application/json");
-        xhr2.onreadystatechange = function() {
-          if(xhr2.readyState === 4) {
-            let serverResponse2 = xhr2.responseText;
-            if(serverResponse2 == "success") {
-              alert("Sign in successful!")
-              //redirect to the page that tells you the login was successful
-              //window.location.replace(window.location.href + "SignedIn");
-            }else if (serverResponse2 == "failure") {
-              alert("wrong password");
-            }
-          }
-        }
-        encrypt_string(email, 0);
-        let encryptedEmail = encryptedString[0];
-        encrypt_string(password_to_string(passwordData), 1);
-        let encryptedPassword = encryptedString[1];
-        xhr2.send(encryptedEmail + " " + encryptedPassword);
+      //this is how we wanted to do it
+      /*if(serverResponse == "success") {
+        alert("Sign in successful!")
+        //redirect to the page that tells you the login was successful
+        //window.location.replace(window.location.href + "SignedIn");
       }else if(serverResponse == "failure") {
-        //needs to be sent twice - could be made better, but the cause for sending incorrectly first is unknown
-        let xhr2 = new XMLHttpRequest();
-        xhr2.open("POST", window.location.href, true);
-        xhr2.setRequestHeader("content-type", "application/json");
-        xhr2.onreadystatechange = function() {
-          if(xhr2.readyState === 4) {
-            let serverResponse2 = xhr2.responseText;
-            if(serverResponse2 == "success") {
-              alert("Sign in successful!")
-              //redirect to the page that tells you the login was successful
-              //window.location.replace(window.location.href + "SignedIn");
-            }else if (serverResponse2 == "failure") {
+        alert("wrong password");
+      }*/
+      //below is how we're doing it, since we couldn't correct a certain error another way
+      //the encryptedEmail and encryptedPassword ended up not being updated the first time sending, so it gets sent twice
+      let xhr2 = new XMLHttpRequest();
+      xhr2.open("POST", window.location.href, true);
+      xhr2.setRequestHeader("content-type", "application/json");
+      xhr2.onreadystatechange = function() {
+        if(xhr2.readyState === 4) {
+          let serverResponse2 = xhr2.responseText;
+          if(serverResponse2 == "success") {
+            alert(inOrUp + " " + "successful!")
+            //redirect to the page that tells you the login was successful
+            //window.location.replace(window.location.href + "SignedIn");
+          }else if (serverResponse2 == "failure") {
+            //split into login/signup
+            if(inOrUp == "login") {
               alert("wrong password");
+            }else {
+              alert("error during signup");
             }
           }
         }
-        encrypt_string(email, 0);
-        let encryptedEmail = encryptedString[0];
-        encrypt_string(password_to_string(passwordData), 1);
-        let encryptedPassword = encryptedString[1];
-        xhr2.send(encryptedEmail + " " + encryptedPassword);
       }
+      encrypt_string(email, 0);
+      let encryptedEmail = encryptedString[0];
+      encrypt_string(password_to_string(passwordData), 1);
+      let encryptedPassword = encryptedString[1];
+      xhr2.send(encryptedEmail + " " + encryptedPassword);
     }
-  };
+  }
   encrypt_string(email, 0);
   let encryptedEmail = encryptedString[0];
   encrypt_string(password_to_string(passwordData), 1);
@@ -781,7 +771,7 @@ function get_password() {
       //console.log(output);
       return output;
     }
-  }
+  };
   xhr.send();
 }
 

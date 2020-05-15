@@ -22,10 +22,10 @@
     <input type="email" maxlength="576" required id="emailInputField" name="email" placeholder="some@email.com">
 
     <!--Sign up button-->
-    <input type="submit" id="signupButton" class="signupButton" value="Sign up" onClick="sign_in_or_up('SignUpPassword')"></button>
+    <input type="submit" id="signupButton" class="signupButton" value="Sign up" onClick="sign_in_or_up('signUpPassword')"></button>
 
     <!--Login button-->
-    <input type="submit" id="loginButton" class="loginButton" value="Login" onClick="sign_in_or_up('SignInPassword')"></button>
+    <input type="submit" id="loginButton" class="loginButton" value="Login" onClick="sign_in_or_up('loginPassword')"></button>
   </form>
 </div>
 
@@ -64,9 +64,9 @@
         };
         //console.log(encryptionPassword);
         let encryptedEmail = encrypt_string(email, encryptionPassword);
-        if(inOrUp == 'SignInPassword') {
+        if(inOrUp == 'loginPassword') {
           xhr.send("sign in " + encryptedEmail);
-        }else if(inOrUp == 'SignUpPassword') {
+        }else if(inOrUp == 'signUpPassword') {
           xhr.send("sign up " + encryptedEmail);
         }
       }
