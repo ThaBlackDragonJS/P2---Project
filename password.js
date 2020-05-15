@@ -61,6 +61,7 @@ let tempChild;
 let tempX1 = 0, tempY1 = 0, tempX2 = 0, tempY2 = 0;
 let tempXoffset = 0, tempYoffset = 0;
 i = 0;
+let passwordHiddenBool = 0;
 
 //----------------------------other global variables-------------------------
 //0th index is for email, 1st is for password
@@ -99,6 +100,9 @@ function update_page(e) {
   //console.log("mouseX " + mousePosXY[0] + " mouseY " + mousePosXY[1])
   draw_object();
   update_grid_size();
+  if(passwordHiddenBool == 1) {
+    hide_password(0);
+  }
 }
 
 
@@ -764,6 +768,26 @@ function sign_in_or_up_finish(inOrUp) {
   encrypt_string(password_to_string(passwordData), 1);
   let encryptedPassword = encryptedString[1];
   xhr.send(encryptedEmail + " " + encryptedPassword);
+}
+
+function hide_password(setBool){
+  if(setBool == 1) {
+    passwordHiddenBool = 1;
+  }
+  let i = 0;
+  let noClick = document.getElementsByClassName("noclick");
+  for(i; i < noClick.length; ++i) {
+    noClick[i].style.visibility = "hidden";
+  }
+}
+
+function unhide_password() {
+  passwordHiddenBool = 0;
+  let i = 0;
+  let noClick = document.getElementsByClassName("noclick");
+  for(i; i < noClick.length; ++i) {
+    noClick[i].style.visibility = "visible";
+  }
 }
 
 let encryptionPassword = get_password();
