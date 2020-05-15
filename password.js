@@ -706,7 +706,7 @@ function requirement_checker(passwordData, passwordObjects, gridWidth, gridHeigh
 
 function sign_in_or_up_finish(inOrUp) {
   //check if the password is within the minimum requirements
-  if(requirement_checker(password_to_string(passwordData)) == 0) {
+  if(requirement_checker(passwordData, passwordObjects, gridWidth, gridHeight) == 0) {
     alert("Password not within requirements.")
     return;
   }
