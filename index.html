@@ -31,46 +31,56 @@
 
 <script src="aes.js"></script> <!-- for AES256 encryption -->
 <script>
+  let encryptionPassword = "";
+
   function sign_in_or_up(inOrUp) {
-    //make a new XML http request
-    let xhr = new XMLHttpRequest();
-    //get and send the email
-    let email = document.getElementById("emailInputField").value;
-    xhr.open("POST", window.location.href, true); //find out what that "true" value is for
-    xhr.setRequestHeader('Content-Type', 'application/json'); //find out if it needs to be json
-    //wait for response
-    xhr.onreadystatechange = function() {
-      if (xhr.readyState === 4)  { 
-        //server has now given response
-        let serverResponse = xhr.responseText;
-        console.log(serverResponse);
-        if(serverResponse == "success") {
-          //redirect to password input
-          window.location.replace(window.location.href + inOrUp);
+    let output = "";
+    let xhr2 = new XMLHttpRequest();
+    xhr2.open("GET", window.location.href + "getPassword", true);
+    xhr2.onreadystatechange = function() {
+      if (xhr2.readyState === 4) {
+        output = xhr2.responseText;
+        //return via global variable
+        encryptionPassword = output;
+        //make a new XML http request
+        let xhr = new XMLHttpRequest();
+        //get and send the email
+        let email = document.getElementById("emailInputField").value;
+        xhr.open("POST", window.location.href, true); //find out what that "true" value is for
+        xhr.setRequestHeader('Content-Type', 'application/json'); //find out if it needs to be json
+        //wait for response
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState === 4)  { 
+            //server has now given response
+            let serverResponse = xhr.responseText;
+            //console.log(serverResponse);
+            if(serverResponse == "success") {
+              //save a cookie containing the email, for use during sign in or sign up
+              set_cookie("email", email, 5) //5 minute expiration
+              //redirect to password input
+              window.location.replace(window.location.href + inOrUp);
+            }
+          }
+        };
+        //console.log(encryptionPassword);
+        let encryptedEmail = encrypt_string(email, encryptionPassword);
+        if(inOrUp == 'SignInPassword') {
+          xhr.send("sign in " + encryptedEmail);
+        }else if(inOrUp == 'SignUpPassword') {
+          xhr.send("sign up " + encryptedEmail);
         }
       }
-    };
-    let encryptedEmail = encrypt_string(email, get_password());
-    if(inOrUp == 'SignInPassword') {
-      xhr.send("sign in " + encryptedEmail);
-    }else if(inOrUp == 'SignUpPassword') {
-      xhr.send("sign up " + encryptedEmail);
     }
+    xhr2.send();
   }
 
-  function get_password() {
-    let output = "";
-    let xhr = new XMLHttpRequest();
-    xhr.open("GET", window.location.href + "getPassword", true);
-    xhr.onreadystatechange = function() {
-      if (xhr.readyState === 4) {
-        output = xhr.responseText;
-      }
-    }
-    xhr.send();
-    return output;
+  //edited from https://www.w3schools.com/js/js_cookies.asp
+  function set_cookie(cname, cvalue, exminutes) {
+    var d = new Date();
+    d.setTime(d.getTime() + (exminutes*60*1000));
+    var expires = "expires="+ d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
   }
-
 
 
   //https://www.npmjs.com/package/crypto-js

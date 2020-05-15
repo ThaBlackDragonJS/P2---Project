@@ -63,7 +63,8 @@ let tempXoffset = 0, tempYoffset = 0;
 i = 0;
 
 //----------------------------other global variables-------------------------
-let encryptedString = "";
+//0th index is for email, 1st is for password
+let encryptedString = ["", ""];
 
 //updates object colour
 function update_object_colour(inputColour) {
@@ -321,7 +322,7 @@ function draw_object() {
 //var testString = "rfajewriofjwaoigfejb ioergniggdyeiuafreygiueraybiuerayrteaiubyer";
 
 
-function encrypt_string(input){ 
+function encrypt_string(input, emailOrPasswordBool){ 
 
   //input != string error handling
   if (typeof input != "string"){
@@ -346,7 +347,9 @@ function encrypt_string(input){
       console.log("original: " + origtext);*/
 
       //"returns" encrypted string via global variable
-      encryptedString = ciphertext;
+      encryptedString[emailOrPasswordBool] = ciphertext;
+      //console.log(encryptedString[0]);
+      //console.log(encryptedString[1]);
     }
   }
   xhr.send();
@@ -426,24 +429,27 @@ function password_to_string(password) {
   }
   //goes through all objects in the password
   for(i = 0; i < password.length; ++i) {
-    //splits into cases point / arrow / connected lines
-    //always first adds the type, to make it easier to convert back into an array
-    outputString += password[i].type + " ";
-    //then always adds the colour, since every object has exactly 1 "colour" property
-    outputString += password[i].colour + " ";
-    if(password[i].type == "point") {
-      outputString += password[i].id + " ";
-    } else if(password[i].type == "arrow") {
-      outputString += password[i].id + " ";
-      outputString += password[i].idStart + " ";
-      outputString += password[i].idEnd + " ";
-    } else if(password[i].type == "connected lines") {
-      //add all the IDs
-      for(j = 0; j < password[i].IDs.length; ++j) {
-        outputString += password[i].IDs[j] + " ";
+    //the undo button doesn't completely delete data, this ignores deleted data
+    if(password[i].type != undefined) {
+      //splits into cases point / arrow / connected lines
+      //always first adds the type, to make it easier to convert back into an array
+      outputString += password[i].type + " ";
+      //then always adds the colour, since every object has exactly 1 "colour" property
+      outputString += password[i].colour + " ";
+      if(password[i].type == "point") {
+        outputString += password[i].id + " ";
+      } else if(password[i].type == "arrow") {
+        outputString += password[i].id + " ";
+        outputString += password[i].idStart + " ";
+        outputString += password[i].idEnd + " ";
+      } else if(password[i].type == "connected lines") {
+        //add all the IDs
+        for(j = 0; j < password[i].IDs.length; ++j) {
+          outputString += password[i].IDs[j] + " ";
+        }
+      } else {
+        console.log("password_to_string - error: wrong object type")
       }
-    } else {
-      console.log("password_to_string - error: wrong object type")
     }
   }
   return outputString;
@@ -702,7 +708,7 @@ function sign_in_finish() {
   //make a new XML http request
   let xhr = new XMLHttpRequest();
   //get and send the email
-  let email = document.getElementById("emailInputField").value;
+  let email = get_cookie("email");
   xhr.open("POST", window.location.href, true); //find out what that "true" value is for
   xhr.setRequestHeader('Content-Type', 'application/json'); //find out if it needs to be json
   //wait for response
@@ -711,18 +717,56 @@ function sign_in_finish() {
       //server has now given response
       let serverResponse = xhr.responseText;
       if(serverResponse == "success") {
-        alert("Sign in successful!")
-        //redirect to the page that tells you the signin was successful
-        //window.location.replace(window.location.href + "SignedIn");
+        //needs to be sent twice - could be made better, but the cause for sending incorrectly first is unknown
+        let xhr2 = new XMLHttpRequest();
+        xhr2.open("POST", window.location.href, true);
+        xhr2.setRequestHeader("content-type", "application/json");
+        xhr2.onreadystatechange = function() {
+          if(xhr2.readyState === 4) {
+            let serverResponse2 = xhr2.responseText;
+            if(serverResponse2 == "success") {
+              alert("Sign in successful!")
+              //redirect to the page that tells you the signin was successful
+              //window.location.replace(window.location.href + "SignedIn");
+            }else if (serverResponse2 == "failure") {
+              alert("wrong password");
+            }
+          }
+        }
+        encrypt_string(email, 0);
+        let encryptedEmail = encryptedString[0];
+        encrypt_string(password_to_string(passwordData), 1);
+        let encryptedPassword = encryptedString[1];
+        xhr2.send(encryptedEmail + " " + encryptedPassword);
       }else if(serverResponse == "failure") {
-        alert("wrong password");
+        //needs to be sent twice - could be made better, but the cause for sending incorrectly first is unknown
+        let xhr2 = new XMLHttpRequest();
+        xhr2.open("POST", window.location.href, true);
+        xhr2.setRequestHeader("content-type", "application/json");
+        xhr2.onreadystatechange = function() {
+          if(xhr2.readyState === 4) {
+            let serverResponse2 = xhr2.responseText;
+            if(serverResponse2 == "success") {
+              alert("Sign in successful!")
+              //redirect to the page that tells you the signin was successful
+              //window.location.replace(window.location.href + "SignedIn");
+            }else if (serverResponse2 == "failure") {
+              alert("wrong password");
+            }
+          }
+        }
+        encrypt_string(email, 0);
+        let encryptedEmail = encryptedString[0];
+        encrypt_string(password_to_string(passwordData), 1);
+        let encryptedPassword = encryptedString[1];
+        xhr2.send(encryptedEmail + " " + encryptedPassword);
       }
     }
   };
-  encrypt_string(email, encryptionPassword);
-  let encryptedEmail = encryptedString;
-  encrypt_string(password_to_string(passwordData));
-  let encryptedPassword = encryptedString;
+  encrypt_string(email, 0);
+  let encryptedEmail = encryptedString[0];
+  encrypt_string(password_to_string(passwordData), 1);
+  let encryptedPassword = encryptedString[1];
   xhr.send(encryptedEmail + " " + encryptedPassword);
 }
 
@@ -734,9 +778,26 @@ function get_password() {
   xhr.onreadystatechange = function() {
     if (xhr.readyState === 4) {
       output = xhr.responseText;
-      console.log(output);
+      //console.log(output);
       return output;
     }
   }
   xhr.send();
+}
+
+//edited from https://www.w3schools.com/js/js_cookies.asp
+function get_cookie(cname) {
+  var name = cname + "=";
+  var decodedCookie = decodeURIComponent(document.cookie);
+  var ca = decodedCookie.split(';');
+  for(var i = 0; i <ca.length; i++) {
+    var c = ca[i];
+    while (c.charAt(0) == ' ') {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
 }

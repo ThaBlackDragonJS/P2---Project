@@ -8,8 +8,8 @@ con.connect(function(err) {
   if (err) throw err;
   console.log("Connected!");
   //Inserts Email and Password into Account Table in Database mydb
-  var email = "testemail";
-  var hashedPassword = "connected lines rgb(255, 52, 52) circle 1 1 object 0 circle 1 2 object 0 circle 1 3 object 0 circle 1 4 object 0 circle 2 3 object 0 circle 3 3 object 0 circle 4 2 object 0 circle 3 1 object 0 ";
+  var email = "test";
+  var hashedPassword = "connected lines rgb(255, 52, 52) circle 1 1 object 0 circle 1 2 object 0 circle 1 3 object 0 circle 2 3 object 0 circle 3 3 object 0 circle 3 2 object 0 circle 3 1 object 0 circle 2 1 object 0 circle 1 1 object 0 ";
   var sql = "INSERT INTO Account (Email, Password) VALUES ?";
   var values = [[email,hashedPassword]];
   con.query(sql, [values],function (err, result) {
