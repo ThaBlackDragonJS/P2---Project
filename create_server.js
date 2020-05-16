@@ -24,7 +24,7 @@ const maxID = 7069;
 
 let server = createServer((request, response) => {
   //send the HTML file, and other files required for it
-  if(request.method == "GET") {
+  if(request.method == "GET") { //-------------------------------------------------GET part-------------------------------------------------
     switch(request.url) {
       //---------------------------Index section + email-------------------------------
       case "/":
@@ -86,7 +86,7 @@ let server = createServer((request, response) => {
           response.end();
         });
         break;
-      //-----------------------------Misc---------------------------------
+      //-----------------------------encryption---------------------------------
       case "/getPassword":
         response.writeHead(200);
         response.write(encryptionPassword);
@@ -107,7 +107,7 @@ let server = createServer((request, response) => {
         response.end();
         break;
     }
-  } else if (request.method == "POST") {
+  } else if (request.method == "POST") { //-------------------------------------------POST part-----------------------------------------------------
     //console.log('POST');
     switch(request.url) {
       //------------------------Index / email part--------------------------
@@ -255,7 +255,7 @@ let server = createServer((request, response) => {
           }
         });
         break;
-      //------------------------------misc------------------------------
+      //------------------------------default case------------------------------
       default:
         console.log("Error: POST wrong url");
         console.log(request.url);
@@ -290,5 +290,104 @@ console.log("Listening! (port 8000)");
 
 
 
+
+
+
+function password_string_to_array(passwordString) {
+  let passwordArray = [];
+  let charsRead = 0, //keeps track of how much of the passwordString has been read
+      objectsRead = 0,
+      IDsRead = 0;
+  let i = 0;
+
+  //the length of the names of each type of object
+  let pointLength = 5,
+      arrowLength = 5,
+      connectedLength = 15;
+
+  //the length of a string containing an RGB colour
+  let colourLength = 16;
+
+  //the length of an id for an object
+  let idLength = 19,
+      arrowStartEndIDLength = 10;
+
+  while(charsRead < passwordString.length) {
+    //first split into cases point / arrow / connected lines
+    if(passwordString[charsRead] == "p") { //-----Point
+      //-------read a point
+      passwordArray[objectsRead] = [];
+      //read the type ("point ")
+      passwordArray[objectsRead].type = read_chars(passwordString, charsRead, pointLength);
+      charsRead += pointLength + 1; //the "+ 1" makes it ignore the space in "point "
+      //read the colour
+      passwordArray[objectsRead].colour = read_chars(passwordString, charsRead, colourLength);
+      charsRead += colourLength + 1;
+      //read the id
+      passwordArray[objectsRead].id = read_chars(passwordString, charsRead, idLength);
+      charsRead += idLength + 1;
+      //point fully read
+      ++objectsRead;
+    }else if(passwordString[charsRead] == "a") { //------Arrow
+      //-------read an arrow
+      passwordArray[objectsRead] = [];
+      //read the type ("arrow ")
+      passwordArray[objectsRead].type = read_chars(passwordString, charsRead, arrowLength);
+      charsRead += arrowLength + 1; //the "+ 1" makes it ignore the space in "arrow "
+      //read the colour
+      passwordArray[objectsRead].colour = read_chars(passwordString, charsRead, colourLength);
+      charsRead += colourLength + 1;
+      //read the id
+      passwordArray[objectsRead].id = read_chars(passwordString, charsRead, idLength);
+      charsRead += idLength + 1;
+      //read the start and end IDs
+      passwordArray[objectsRead].idStart = read_chars(passwordString, charsRead, arrowStartEndIDLength);
+      charsRead += arrowStartEndIDLength + 1;
+      passwordArray[objectsRead].idEnd = read_chars(passwordString, charsRead, arrowStartEndIDLength);
+      charsRead += arrowStartEndIDLength + 1;
+      //arrow fully read
+      ++objectsRead;
+    }else if(passwordString[charsRead] == "c") { //------Connected lines
+      //-------read a "connected lines"
+      let continueExpression = true; //for the while loop
+      passwordArray[objectsRead] = [];
+
+      //read the type ("connected lines ")
+      passwordArray[objectsRead].type = read_chars(passwordString, charsRead, connectedLength);
+      charsRead += connectedLength + 1; //the "+ 1" makes it ignore the second space in "connected lines "
+      //read the colour
+      passwordArray[objectsRead].colour = read_chars(passwordString, charsRead, colourLength);
+      charsRead += colourLength + 1;
+      //read the IDs
+      passwordArray[objectsRead].IDs = [];
+      IDsRead = 0;
+      while(continueExpression) {
+        //read an ID
+        passwordArray[objectsRead].IDs[IDsRead] = read_chars(passwordString, charsRead, idLength);
+        charsRead += idLength + 1;
+        ++IDsRead;
+        //find out if there isn't another ID to read
+        //only "circle ..." has "i" as the 2nd letter
+        if(passwordString[charsRead + 1] != "i") {
+          continueExpression = false;
+          ++objectsRead;
+        }
+      }
+    }else {
+      console.log("password_string_to_array - error while reading string")
+      ++charsRead;
+    }
+  }
+  return passwordArray;
+}
+
+function read_chars(readFrom, skipAmount, readAmount) {
+  let i = 0;
+  let Body = "";
+  for(i; i < readAmount; ++i) {
+    Body += readFrom[skipAmount + i];
+  }
+  return Body;
+}
 
 
