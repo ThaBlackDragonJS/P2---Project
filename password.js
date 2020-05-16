@@ -507,9 +507,9 @@ function requirement_checker(passwordData, passwordObjects, gridWidth, gridHeigh
   for(i = 0; i < passwordObjects; ++i) {
     if(passwordData[i].colour == "rgb(255, 52, 52)") {
       coloursUsed[0] = 1;
-    } else if (passwordData[i].colour == "rgb(129, 225, 129)") {
+    } else if (passwordData[i].colour == "rgb(129,225,129)") {
       coloursUsed[1] = 1;
-    } else if (passwordData[i].colour == "rgb(24, 24, 255)") {
+    } else if (passwordData[i].colour == "rgb( 24, 24,255)") {
       coloursUsed[2] = 1;
     } else {
       console.log("requirement_checker - error: wrong colour");
@@ -732,11 +732,16 @@ function sign_in_or_up_finish(inOrUp) {
     alert("Password not within requirements.")
     return;
   }
+  //get the email and then encrypt email and password
+  let email = get_cookie("email");
+  encrypt_string(email, 0);
+  let encryptedEmail = encryptedString[0];
+  encrypt_string(password_to_string(passwordData), 1);
+  let encryptedPassword = encryptedString[1];
 
   //make a new XML http request
   let xhr = new XMLHttpRequest();
-  //get and send the email
-  let email = get_cookie("email");
+  //send the email and password
   xhr.open("POST", window.location.href, true); //find out what that "true" value is for
   xhr.setRequestHeader('Content-Type', 'application/json'); //find out if it needs to be json
   //wait for response
@@ -775,17 +780,19 @@ function sign_in_or_up_finish(inOrUp) {
         }
       }
       encrypt_string(email, 0);
-      let encryptedEmail = encryptedString[0];
+      encryptedEmail = encryptedString[0];
       encrypt_string(password_to_string(passwordData), 1);
-      let encryptedPassword = encryptedString[1];
+      encryptedPassword = encryptedString[1];
+      console.log(encryptedEmail);
+      console.log(encryptedPassword);
       xhr2.send(encryptedEmail + " " + encryptedPassword);
     }
   }
   encrypt_string(email, 0);
-  let encryptedEmail = encryptedString[0];
+  encryptedEmail = encryptedString[0];
   encrypt_string(password_to_string(passwordData), 1);
-  let encryptedPassword = encryptedString[1];
-  xhr.send(encryptedEmail + " " + encryptedPassword);
+  encryptedPassword = encryptedString[1];
+  xhr.send(encryptedEmail + " " + encryptedPassword); //send default string the first time, since the email and password aren't computed correctly
 }
 
 function hide_password(setBool){
