@@ -111,12 +111,18 @@ function update_page(e) {
     //clears the currently drawn object(s)
     function clear_input(){
       let i;
+      //first delete the data from HTML
       for(i = 0; i < tempDrawnPasswordNodes; ++i) {
+        //each temp object can be either an "arrow/point" or a "connected lines segment"
+        //first, if it's an "arrows/point", remove the arrow
         if(tempDrawnPasswordData[0][1].id == "tempObjectArrow") {
           tempDrawnPasswordData[i][0].parentNode.removeChild(tempDrawnPasswordData[i][0]);
         }
+        //then, regardless of which type it is, remove the [i][1] index (these indexes are used for both points and connected lines)
         tempDrawnPasswordData[i][1].parentNode.removeChild(tempDrawnPasswordData[i][1]);
+        //it can be used for both, since they can't both be drawn at once
       }
+      //Then delete the data from JS
       tempDrawnPasswordNodes = 0;
       tempDrawnPasswordData = [];
       clickInputData = [];
