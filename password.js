@@ -63,9 +63,6 @@ let tempXoffset = 0, tempYoffset = 0;
 i = 0;
 let passwordHiddenBool = 0;
 
-//----------------------------other global variables-------------------------
-//0th index is for email, 1st is for password
-let encryptedString = ["", ""];
 
 //updates object colour
 function update_object_colour(inputColour) {
@@ -326,7 +323,7 @@ function draw_object() {
 //var testString = "rfajewriofjwaoigfejb ioergniggdyeiuafreygiueraybiuerayrteaiubyer";
 
 
-function encrypt_string(input, emailOrPasswordBool){ 
+function encrypt_string(input, callback){ 
 
   //input != string error handling
   if (typeof input != "string"){
@@ -350,10 +347,8 @@ function encrypt_string(input, emailOrPasswordBool){
       const origtext = Aes.Ctr.decrypt(ciphertext, encryptionPassword, 256);
       console.log("original: " + origtext);*/
 
-      //"returns" encrypted string via global variable
-      encryptedString[emailOrPasswordBool] = ciphertext;
-      //console.log(encryptedString[0]);
-      //console.log(encryptedString[1]);
+      //returns using a callback
+      callback(ciphertext);
     }
   }
   xhr.send();
@@ -732,12 +727,8 @@ function sign_in_or_up_finish(inOrUp) {
     alert("Password not within requirements.")
     return;
   }
-  //get the email and then encrypt email and password
+  //get the email
   let email = get_cookie("email");
-  encrypt_string(email, 0);
-  let encryptedEmail = encryptedString[0];
-  encrypt_string(password_to_string(passwordData), 1);
-  let encryptedPassword = encryptedString[1];
 
   //make a new XML http request
   let xhr = new XMLHttpRequest();
@@ -749,50 +740,27 @@ function sign_in_or_up_finish(inOrUp) {
     if (xhr.readyState === 4)  { 
       //server has now given response
       let serverResponse = xhr.responseText;
-      //this is how we wanted to do it
-      /*if(serverResponse == "success") {
+      if(serverResponse == "success") {
         alert("Sign in successful!")
         //redirect to the page that tells you the login was successful
         //window.location.replace(window.location.href + "SignedIn");
       }else if(serverResponse == "failure") {
         alert("wrong password");
-      }*/
-      //below is how we're doing it, since we couldn't correct a certain error another way
-      //the encryptedEmail and encryptedPassword ended up not being updated the first time sending, so it gets sent twice
-      let xhr2 = new XMLHttpRequest();
-      xhr2.open("POST", window.location.href, true);
-      xhr2.setRequestHeader("content-type", "application/json");
-      xhr2.onreadystatechange = function() {
-        if(xhr2.readyState === 4) {
-          let serverResponse2 = xhr2.responseText;
-          if(serverResponse2 == "success") {
-            alert(inOrUp + " " + "successful!")
-            //redirect to the page that tells you the login was successful
-            //window.location.replace(window.location.href + "SignedIn");
-          }else if (serverResponse2 == "failure") {
-            //split into login/signup
-            if(inOrUp == "login") {
-              alert("wrong password");
-            }else {
-              alert("error during signup");
-            }
-          }
-        }
       }
-      encrypt_string(email, 0);
-      encryptedEmail = encryptedString[0];
-      encrypt_string(password_to_string(passwordData), 1);
-      encryptedPassword = encryptedString[1];
-      console.log(encryptedEmail);
-      console.log(encryptedPassword);
-      xhr2.send(encryptedEmail + " " + encryptedPassword);
     }
   }
-  encrypt_string(email, 0);
-  encryptedEmail = encryptedString[0];
-  encrypt_string(password_to_string(passwordData), 1);
-  encryptedPassword = encryptedString[1];
-  xhr.send(encryptedEmail + " " + encryptedPassword); //send default string the first time, since the email and password aren't computed correctly
+  //encrypt the email and password, and then send the response
+  encrypt_string(email, callback_local_one);
+  function callback_local_one(encryptedStringOne) {
+    let encryptedEmail = encryptedStringOne;
+    encrypt_string(password_to_string(passwordData), callback_local_two);
+    function callback_local_two(encryptedStringTwo) {
+      let encryptedPassword = encryptedStringTwo;
+      console.log(encryptedEmail);
+      console.log(encryptedPassword);
+      xhr.send(encryptedEmail + " " + encryptedPassword);
+    }
+  }
 }
 
 function hide_password(setBool){
