@@ -696,7 +696,7 @@ function requirement_checker(passwordData, passwordObjects, gridWidth, gridHeigh
                 connectedInputData[connectedInputNodes].type = "hover";
                 connectedInputData[connectedInputNodes].id = inputEvent.path[0].id;
                 ++connectedInputNodes;
-                console.log("hover detected"); 
+                //console.log("hover detected"); 
               }
             }
           }
