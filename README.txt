@@ -1,3 +1,6 @@
+------Authenticator------
+
+
 Settings in create_server.js:
 -The encryption password is on line 14
 -The port which the server is hosted on is on line 15
