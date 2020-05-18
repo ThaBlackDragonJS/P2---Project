@@ -12,12 +12,13 @@ const AesCtr = require("./aes");
 
 //the encryption password for AES
 const encryptionPassword = "testpassword"
+const serverPort = 8000;
 
 
 //other values
 let body = '';
-//a prime number halfway between two powers of 2 - should be good for hashing
-//used for assigning an ID to users, however, the implementation has not been entirely completed.
+//maxID is a prime number halfway between two powers of 2 - should be good for hashing
+//maxID is used for assigning an ID to users, however, the implementation has not been entirely completed.
 //currently, different users can get the same ID, since the re-index function has not been used.
 const maxID = 7069;
 gridHeight = 5, gridWidth = gridHeight;
@@ -274,8 +275,8 @@ let server = createServer((request, response) => {
 });
 //this works, as an example:    dbConnect.create_database();
 
-server.listen(8000);
-console.log("Listening! (port 8000)");
+server.listen(serverPort);
+console.log("Listening! (port " + serverPort + ")");
 
 
 
