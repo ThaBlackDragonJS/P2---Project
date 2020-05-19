@@ -784,7 +784,11 @@ function sign_in_or_up_finish(inOrUp) {
         //redirect to the page that tells you the login was successful
         window.location.replace("loggedIn");
       }else if(serverResponse == "failure") {
-        alert("wrong password");
+        if(inOrUp == "login") {
+          alert("wrong password");
+        }else {
+          alert("Please do not attempt signing up twice");
+        }
       }
     }
   }
