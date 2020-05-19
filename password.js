@@ -17,7 +17,7 @@ let passwordDotRadius = 2,
 
 //-------------------------------------Grid creation + password input event listeners
 //other variables
-let htmlGrid = document.getElementById("grid1")
+let htmlGrid = document.getElementById("gridSVG");
 let i = 0, j = 0;
 let temporaryElement, tempX = 0, tempY = 0;
 
