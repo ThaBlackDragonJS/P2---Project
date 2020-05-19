@@ -13,7 +13,7 @@ exports.create_database = function (){
 
   con.connect(function(err) {
     if (err) throw err;
-    console.log("Connected!");
+    //console.log("Connected!");
     //Creates Database "mydb"
       con.query("CREATE DATABASE mydbtest", function (err, result) {
       if (err) throw err;

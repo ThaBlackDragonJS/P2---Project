@@ -17,7 +17,7 @@ let passwordDotRadius = 2,
 
 //-------------------------------------Grid creation + password input event listeners
 //other variables
-let htmlGrid = document.getElementById("grid1")
+let htmlGrid = document.getElementById("gridSVG");
 let i = 0, j = 0;
 let temporaryElement, tempX = 0, tempY = 0;
 
@@ -63,9 +63,6 @@ let tempXoffset = 0, tempYoffset = 0;
 i = 0;
 let passwordHiddenBool = 0;
 
-//----------------------------other global variables-------------------------
-//0th index is for email, 1st is for password
-let encryptedString = ["", ""];
 
 //updates object colour
 function update_object_colour(inputColour) {
@@ -114,12 +111,18 @@ function update_page(e) {
     //clears the currently drawn object(s)
     function clear_input(){
       let i;
+      //first delete the data from HTML
       for(i = 0; i < tempDrawnPasswordNodes; ++i) {
+        //each temp object can be either an "arrow/point" or a "connected lines segment"
+        //first, if it's an "arrows/point", remove the arrow
         if(tempDrawnPasswordData[0][1].id == "tempObjectArrow") {
           tempDrawnPasswordData[i][0].parentNode.removeChild(tempDrawnPasswordData[i][0]);
         }
+        //then, regardless of which type it is, remove the [i][1] index (these indexes are used for both points and connected lines)
         tempDrawnPasswordData[i][1].parentNode.removeChild(tempDrawnPasswordData[i][1]);
+        //it can be used for both, since they can't both be drawn at once
       }
+      //Then delete the data from JS
       tempDrawnPasswordNodes = 0;
       tempDrawnPasswordData = [];
       clickInputData = [];
@@ -326,7 +329,7 @@ function draw_object() {
 //var testString = "rfajewriofjwaoigfejb ioergniggdyeiuafreygiueraybiuerayrteaiubyer";
 
 
-function encrypt_string(input, emailOrPasswordBool){ 
+function encrypt_string(input, callback){ 
 
   //input != string error handling
   if (typeof input != "string"){
@@ -350,10 +353,8 @@ function encrypt_string(input, emailOrPasswordBool){
       const origtext = Aes.Ctr.decrypt(ciphertext, encryptionPassword, 256);
       console.log("original: " + origtext);*/
 
-      //"returns" encrypted string via global variable
-      encryptedString[emailOrPasswordBool] = ciphertext;
-      //console.log(encryptedString[0]);
-      //console.log(encryptedString[1]);
+      //returns using a callback
+      callback(ciphertext);
     }
   }
   xhr.send();
@@ -507,9 +508,9 @@ function requirement_checker(passwordData, passwordObjects, gridWidth, gridHeigh
   for(i = 0; i < passwordObjects; ++i) {
     if(passwordData[i].colour == "rgb(255, 52, 52)") {
       coloursUsed[0] = 1;
-    } else if (passwordData[i].colour == "rgb(129, 225, 129)") {
+    } else if (passwordData[i].colour == "rgb(129,225,129)") {
       coloursUsed[1] = 1;
-    } else if (passwordData[i].colour == "rgb(24, 24, 255)") {
+    } else if (passwordData[i].colour == "rgb( 24, 24,255)") {
       coloursUsed[2] = 1;
     } else {
       console.log("requirement_checker - error: wrong colour");
@@ -695,7 +696,7 @@ function requirement_checker(passwordData, passwordObjects, gridWidth, gridHeigh
                 connectedInputData[connectedInputNodes].type = "hover";
                 connectedInputData[connectedInputNodes].id = inputEvent.path[0].id;
                 ++connectedInputNodes;
-                console.log("hover detected"); 
+                //console.log("hover detected"); 
               }
             }
           }
@@ -732,11 +733,12 @@ function sign_in_or_up_finish(inOrUp) {
     alert("Password not within requirements.")
     return;
   }
+  //get the email
+  let email = get_cookie("email");
 
   //make a new XML http request
   let xhr = new XMLHttpRequest();
-  //get and send the email
-  let email = get_cookie("email");
+  //send the email and password
   xhr.open("POST", window.location.href, true); //find out what that "true" value is for
   xhr.setRequestHeader('Content-Type', 'application/json'); //find out if it needs to be json
   //wait for response
@@ -744,48 +746,27 @@ function sign_in_or_up_finish(inOrUp) {
     if (xhr.readyState === 4)  { 
       //server has now given response
       let serverResponse = xhr.responseText;
-      //this is how we wanted to do it
-      /*if(serverResponse == "success") {
+      if(serverResponse == "success") {
         alert("Sign in successful!")
         //redirect to the page that tells you the login was successful
         //window.location.replace(window.location.href + "SignedIn");
       }else if(serverResponse == "failure") {
         alert("wrong password");
-      }*/
-      //below is how we're doing it, since we couldn't correct a certain error another way
-      //the encryptedEmail and encryptedPassword ended up not being updated the first time sending, so it gets sent twice
-      let xhr2 = new XMLHttpRequest();
-      xhr2.open("POST", window.location.href, true);
-      xhr2.setRequestHeader("content-type", "application/json");
-      xhr2.onreadystatechange = function() {
-        if(xhr2.readyState === 4) {
-          let serverResponse2 = xhr2.responseText;
-          if(serverResponse2 == "success") {
-            alert(inOrUp + " " + "successful!")
-            //redirect to the page that tells you the login was successful
-            //window.location.replace(window.location.href + "SignedIn");
-          }else if (serverResponse2 == "failure") {
-            //split into login/signup
-            if(inOrUp == "login") {
-              alert("wrong password");
-            }else {
-              alert("error during signup");
-            }
-          }
-        }
       }
-      encrypt_string(email, 0);
-      let encryptedEmail = encryptedString[0];
-      encrypt_string(password_to_string(passwordData), 1);
-      let encryptedPassword = encryptedString[1];
-      xhr2.send(encryptedEmail + " " + encryptedPassword);
     }
   }
-  encrypt_string(email, 0);
-  let encryptedEmail = encryptedString[0];
-  encrypt_string(password_to_string(passwordData), 1);
-  let encryptedPassword = encryptedString[1];
-  xhr.send(encryptedEmail + " " + encryptedPassword);
+  //encrypt the email and password, and then send the response
+  encrypt_string(email, callback_local_one);
+  function callback_local_one(encryptedStringOne) {
+    let encryptedEmail = encryptedStringOne;
+    encrypt_string(password_to_string(passwordData), callback_local_two);
+    function callback_local_two(encryptedStringTwo) {
+      let encryptedPassword = encryptedStringTwo;
+      //console.log(encryptedEmail);
+      //console.log(encryptedPassword);
+      xhr.send(encryptedEmail + " " + encryptedPassword);
+    }
+  }
 }
 
 function hide_password(setBool){
