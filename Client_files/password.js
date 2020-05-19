@@ -802,6 +802,18 @@ function sign_in_or_up_finish(inOrUp) {
   }
 }
 
+function hideOrUnhidePassword(){
+  switch(passwordHiddenBool){
+    case 0:
+      hide_password(1);
+      break;
+
+    case 1:
+      unhide_password();
+      break;
+  }
+}
+
 function hide_password(setBool){
   if(setBool == 1) {
     passwordHiddenBool = 1;
