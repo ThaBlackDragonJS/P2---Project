@@ -267,8 +267,7 @@ let server = createServer((request, response) => {
         break;
       //------------------------------default case------------------------------
       default:
-        console.log("Error: POST wrong url");
-        console.log(request.url);
+        console.log("Error: POST wrong url " + request.url);
         break;
     }
   }

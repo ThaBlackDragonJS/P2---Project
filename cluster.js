@@ -91,7 +91,7 @@ function password_hash(password){
 		}
   }
 
-  console.log(password + "Efter Sha256");
+  //console.log(password + "Efter Sha256");
   return(sha256(password));
 };
 
