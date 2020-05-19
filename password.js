@@ -727,14 +727,19 @@ function requirement_checker(passwordData, passwordObjects, gridWidth, gridHeigh
     }
 
 
+//password part of login/signup
 function sign_in_or_up_finish(inOrUp) {
   //check if the password is within the minimum requirements
   if(requirement_checker(passwordData, passwordObjects, gridWidth, gridHeight) == 0) {
     alert("Password not within requirements.")
     return;
   }
-  //get the email
+  //get the email and check if the format is correct
   let email = get_cookie("email");
+  if(validateEmail(email) == false) {
+    alert("Session expired");
+    return;
+  }
 
   //make a new XML http request
   let xhr = new XMLHttpRequest();
@@ -819,4 +824,13 @@ function get_cookie(cname) {
     }
   }
   return "";
+}
+
+
+
+
+//email format validation, from https://stackoverflow.com/questions/46155/how-to-validate-an-email-address-in-javascript
+function validateEmail(email) {
+  var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  return re.test(String(email).toLowerCase());
 }

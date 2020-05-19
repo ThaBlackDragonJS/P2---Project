@@ -239,9 +239,10 @@ let server = createServer((request, response) => {
           const origPassword = AesCtr.decrypt(encryptedPassword, encryptionPassword, 256); //needs to be hashed later
           const hashedPassword = cluster.call_sha256(origPassword);
 
-          //check password requirements
+          //check password requirements and validates email form
           let passwordArray = password_string_to_array(origPassword);
-          if(requirement_checker(passwordArray, passwordArray.length, gridWidth, gridHeight) != 1) {
+          if(requirement_checker(passwordArray, passwordArray.length, gridWidth, gridHeight) != 1
+             || validateEmail(origEmail) == false) {
             response.writeHead(200);
             response.write("failure");
             response.end();
@@ -485,4 +486,14 @@ function requirement_checker(passwordData, passwordObjects, gridWidth, gridHeigh
     return 0; //not within requirements
   }
   return 1; //within requirements
+}
+
+
+
+
+
+//email format validation, from https://stackoverflow.com/questions/46155/how-to-validate-an-email-address-in-javascript
+function validateEmail(email) {
+  var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  return re.test(String(email).toLowerCase());
 }
