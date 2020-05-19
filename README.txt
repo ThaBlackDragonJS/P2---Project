@@ -1,12 +1,12 @@
 ------Authenticator------
 
 
-Settings in create_server.js:
+Settings in Server_files/create_server.js:
 -The encryption password is on line 14
 -The port which the server is hosted on is on line 15
 -maximum user ID (line 23)
 
-Settings in accounts_table.js:
+Settings in Server_files/accounts_table.js:
 -max email length
   -default 320, since that's the longest email possible (https://www.rfc-editor.org/errata_search.php?rfc=3696)
 -max hashed password length
