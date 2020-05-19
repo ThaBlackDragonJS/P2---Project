@@ -768,7 +768,7 @@ function sign_in_or_up_finish(inOrUp) {
   //make a new XML http request
   let xhr = new XMLHttpRequest();
   //send the email and password
-  xhr.open("POST", window.location.href, true); //find out what that "true" value is for
+  xhr.open("POST", window.location.href, true);
   xhr.setRequestHeader('Content-Type', 'application/json'); //find out if it needs to be json
   //wait for response
   xhr.onreadystatechange = function() {
