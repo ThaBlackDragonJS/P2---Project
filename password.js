@@ -754,11 +754,11 @@ function sign_in_or_up_finish(inOrUp) {
       if(serverResponse == "success") {
         if(inOrUp == "login") {
           alert("Login successful!");
-          //redirect to the page that tells you the login was successful
-          //window.location.replace(window.location.href + "SignedIn");
         }else {
           alert("Signup successful!");
         }
+        //redirect to the page that tells you the login was successful
+        window.location.replace("loggedIn");
       }else if(serverResponse == "failure") {
         alert("wrong password");
       }

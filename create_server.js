@@ -59,7 +59,7 @@ let server = createServer((request, response) => {
           response.end();
         });
         break;
-      //----------------------------password input---------------------------
+      //----------------------------password input, both login and signup---------------------------
       case "/password.css":
         response.writeHead(200, {"Content-Type": "text/css"})
         fs.readFile('password.css', function(err, content){
@@ -97,6 +97,14 @@ let server = createServer((request, response) => {
       case "/aes.js":
         response.writeHead(200, {"Content-Type": "text/js"});
         fs.readFile('aes.js', function(err, content){
+          response.write(content);
+          response.end();
+        });
+        break;
+      //--------------Logged in page--------------
+      case "/loggedIn":
+        response.writeHead(200, {"content-type": "text/html"});
+        fs.readFile("loggedIn.html", function(err, content){
           response.write(content);
           response.end();
         });
