@@ -729,15 +729,15 @@ function requirement_checker(passwordData, passwordObjects, gridWidth, gridHeigh
 
 //password part of login/signup
 function sign_in_or_up_finish(inOrUp) {
-  //check if the password is within the minimum requirements
-  if(requirement_checker(passwordData, passwordObjects, gridWidth, gridHeight) == 0) {
-    alert("Password not within requirements.")
-    return;
-  }
   //get the email and check if the format is correct
   let email = get_cookie("email");
   if(validateEmail(email) == false) {
     alert("Session expired");
+    return;
+  }
+  //check if the password is within the minimum requirements
+  if(requirement_checker(passwordData, passwordObjects, gridWidth, gridHeight) == 0) {
+    alert("Password not within requirements.")
     return;
   }
 
@@ -752,9 +752,13 @@ function sign_in_or_up_finish(inOrUp) {
       //server has now given response
       let serverResponse = xhr.responseText;
       if(serverResponse == "success") {
-        alert("Sign in successful!")
-        //redirect to the page that tells you the login was successful
-        //window.location.replace(window.location.href + "SignedIn");
+        if(inOrUp == "login") {
+          alert("Login successful!");
+          //redirect to the page that tells you the login was successful
+          //window.location.replace(window.location.href + "SignedIn");
+        }else {
+          alert("Signup successful!");
+        }
       }else if(serverResponse == "failure") {
         alert("wrong password");
       }
