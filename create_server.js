@@ -3,12 +3,12 @@ const {createServer} = require("http");
 const fs = require('fs');
 
 //local files
-const account_list = require("./account_list");
+const account_list = require("./Server_files/account_list");
 //const accounts_table = require("./accounts_table");
-const check_credentials = require("./check_credentials");
-const cluster = require("./cluster");
-const delete_account = require("./delete_account");
-const AesCtr = require("./aes");
+const check_credentials = require("./Server_files/check_credentials");
+const cluster = require("./Server_files/cluster");
+const delete_account = require("./Server_files/delete_account");
+const AesCtr = require("./Server_files/aes");
 
 //the encryption password for AES
 const encryptionPassword = "testpassword"
@@ -31,14 +31,14 @@ let server = createServer((request, response) => {
       //---------------------------Index section + email-------------------------------
       case "/":
         response.writeHead(200, {"Content-Type": "text/html"});
-        fs.readFile('index.html', function(err, content){
+        fs.readFile('./Client_files/index.html', function(err, content){
           response.write(content);
           response.end();
         });
         break;
       case "/index.css":
         response.writeHead(200, {"Content-Type": "text/css"});
-        fs.readFile('index.css', function(err, content){
+        fs.readFile('./Client_files/index.css', function(err, content){
           response.write(content);
           response.end();
         });
@@ -46,7 +46,7 @@ let server = createServer((request, response) => {
       //-----------------------------Login: Password section-------------------------
       case "/loginPassword": 
         response.writeHead(200, {"Content-Type": "text/html"});
-        fs.readFile('loginPassword.html', function(err, content){
+        fs.readFile('./Client_files/loginPassword.html', function(err, content){
           response.write(content);
           response.end();
         });
@@ -54,7 +54,7 @@ let server = createServer((request, response) => {
       //-----------------------------Sign up: Password section------------------------------
       case "/signUpPassword":
         response.writeHead(200, {"content-type": "text/html"});
-        fs.readFile("signUpPassword.html", function(err, content){
+        fs.readFile("./Client_files/signUpPassword.html", function(err, content){
           response.write(content);
           response.end();
         });
@@ -62,28 +62,28 @@ let server = createServer((request, response) => {
       //----------------------------password input, both login and signup---------------------------
       case "/password.css":
         response.writeHead(200, {"Content-Type": "text/css"})
-        fs.readFile('password.css', function(err, content){
+        fs.readFile('./Client_files/password.css', function(err, content){
           response.write(content);
           response.end();
         });
         break;
       case "/password.js":
         response.writeHead(200, {"Content-Type": "text/js"});
-        fs.readFile('password.js', function(err, content){
+        fs.readFile('./Client_files/password.js', function(err, content){
           response.write(content);
           response.end();
         });
         break;
       case "/resetArrow.png":
         response.writeHead(200, {"Content-Type": "image/png"});
-        fs.readFile('resetArrow.png', function(err, content){
+        fs.readFile('./Client_files/resetArrow.png', function(err, content){
           response.write(content);
           response.end();
         });
         break;
       case "/undoArrow.png":
         response.writeHead(200, {"Content-Type": "image/png"});
-        fs.readFile('undoArrow.png', function(err, content){
+        fs.readFile('./Client_files/undoArrow.png', function(err, content){
           response.write(content);
           response.end();
         });
@@ -96,7 +96,7 @@ let server = createServer((request, response) => {
         break;
       case "/aes.js":
         response.writeHead(200, {"Content-Type": "text/js"});
-        fs.readFile('aes.js', function(err, content){
+        fs.readFile('./Server_files/aes.js', function(err, content){
           response.write(content);
           response.end();
         });
@@ -104,7 +104,7 @@ let server = createServer((request, response) => {
       //--------------Logged in page--------------
       case "/loggedIn":
         response.writeHead(200, {"content-type": "text/html"});
-        fs.readFile("loggedIn.html", function(err, content){
+        fs.readFile("./Client_files/loggedIn.html", function(err, content){
           response.write(content);
           response.end();
         });
