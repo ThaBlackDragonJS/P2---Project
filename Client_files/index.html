@@ -17,16 +17,14 @@
 
 <!--Landing page-->
 <div class="emailInputform">
-  <form action="insert server here" method="POST">
-    <p class="emailInputFlavorText">Please enter your email below</p>
-    <input type="email" maxlength="576" required id="emailInputField" name="email" placeholder="some@email.com">
+  <p class="emailInputFlavorText">Please enter your email below</p>
+  <input type="email" maxlength="576" required id="emailInputField" name="email" placeholder="some@email.com">
 
-    <!--Sign up button-->
-    <input type="submit" id="signupButton" class="signupButton" value="Sign up" onClick="sign_in_or_up('signUpPassword')"></button>
+  <!--Sign up button-->
+  <input type="submit" id="signupButton" class="signupButton" value="Sign up" onClick="sign_in_or_up('signUpPassword')"></button>
 
-    <!--Login button-->
-    <input type="submit" id="loginButton" class="loginButton" value="Login" onClick="sign_in_or_up('loginPassword')"></button>
-  </form>
+  <!--Login button-->
+  <input type="submit" id="loginButton" class="loginButton" value="Login" onClick="sign_in_or_up('loginPassword')"></button>
 </div>
 
 <script src="aes.js"></script> <!-- for AES256 encryption -->
@@ -35,6 +33,7 @@
 
   //first gets the encryption password, then posts the email
   function sign_in_or_up(inOrUp) {
+    console.log(window.location.href);
     let output = "";
     let xhr2 = new XMLHttpRequest();
     //get the email
@@ -68,6 +67,13 @@
               set_cookie("email", email, 5) //5 minute expiration
               //redirect to password input
               window.location.replace(window.location.href + inOrUp);
+            }else {
+              //email error messages
+              if(inOrUp == "loginPassword") {
+                alert("Account does not exist");
+              } else {
+                alert("Account already exists");
+              }
             }
           }
         };

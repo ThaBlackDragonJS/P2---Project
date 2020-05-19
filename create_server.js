@@ -156,6 +156,7 @@ let server = createServer((request, response) => {
             if(requestStartInfo == "sign in ") {
               //if it is in the database: give back "success", else "failure"
               if(emailExists) {
+                console.log("email exists - sending success message");
                 response.write("success");
               }else {
                 response.write("failure");
