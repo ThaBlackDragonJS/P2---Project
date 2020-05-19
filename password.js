@@ -762,8 +762,8 @@ function sign_in_or_up_finish(inOrUp) {
     encrypt_string(password_to_string(passwordData), callback_local_two);
     function callback_local_two(encryptedStringTwo) {
       let encryptedPassword = encryptedStringTwo;
-      console.log(encryptedEmail);
-      console.log(encryptedPassword);
+      //console.log(encryptedEmail);
+      //console.log(encryptedPassword);
       xhr.send(encryptedEmail + " " + encryptedPassword);
     }
   }
