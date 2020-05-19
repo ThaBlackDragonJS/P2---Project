@@ -787,7 +787,7 @@ function sign_in_or_up_finish(inOrUp) {
         if(inOrUp == "login") {
           alert("wrong password");
         }else {
-          alert("Please do not attempt signing up twice");
+          alert("Error during signup");
         }
       }
     }
