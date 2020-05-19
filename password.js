@@ -172,6 +172,10 @@ function draw_object() {
         tempDrawnPasswordData[tempDrawnPasswordNodes][1].setAttribute('marker-end', "url(#arrowhead)");
         tempDrawnPasswordData[tempDrawnPasswordNodes][1].classList.add("noclick");
         tempDrawnPasswordData[0][1].id = "tempObjectConnected";
+        //make it hidden if the password should currently be hidden
+        if(passwordHiddenBool == 1) {
+          tempDrawnPasswordData[tempDrawnPasswordNodes][1].style.visibility = "hidden";
+        }
         htmlGrid.appendChild(tempDrawnPasswordData[tempDrawnPasswordNodes][1]);
         //only increase the number of nodes when drawing a new line
         ++tempDrawnPasswordNodes;
@@ -205,6 +209,10 @@ function draw_object() {
       tempDrawnPasswordData[tempDrawnPasswordNodes][0].setAttribute("cx", tempX + "%");
       tempDrawnPasswordData[tempDrawnPasswordNodes][0].setAttribute("cy", tempY + "%");
       tempDrawnPasswordData[tempDrawnPasswordNodes][0].classList.add("noclick");
+      //make it hidden if the password should currently be hidden
+      if(passwordHiddenBool == 1) {
+        tempDrawnPasswordData[tempDrawnPasswordNodes][0].style.visibility = "hidden";
+      }
       htmlGrid.appendChild(tempDrawnPasswordData[tempDrawnPasswordNodes][0]);
     }
     //---then the arrow
@@ -226,6 +234,10 @@ function draw_object() {
       tempDrawnPasswordData[tempDrawnPasswordNodes][1].setAttribute('marker-end', "url(#arrowhead)");
       tempDrawnPasswordData[tempDrawnPasswordNodes][1].classList.add("noclick");
       tempDrawnPasswordData[tempDrawnPasswordNodes][1].id = "tempObjectArrow";
+      //make it hidden if the password should currently be hidden
+      if(passwordHiddenBool == 1) {
+        tempDrawnPasswordData[tempDrawnPasswordNodes][1].style.visibility = "hidden";
+      }
       htmlGrid.appendChild(tempDrawnPasswordData[tempDrawnPasswordNodes][1]);
       //only increase the number of nodes when drawing a new line
       ++tempDrawnPasswordNodes;
@@ -280,6 +292,10 @@ function draw_object() {
             if(j === passwordData[i].IDs.length-2) {
               temporaryElement.setAttribute('marker-end', "url(#arrowhead)");
             }
+            //make it hidden if the password should currently be hidden
+            if(passwordHiddenBool == 1) {
+              temporaryElement.style.visibility = "hidden";
+            }
             htmlGrid.appendChild(temporaryElement);
           }
         } else if (passwordData[i].type === "arrow"){
@@ -298,6 +314,10 @@ function draw_object() {
           temporaryElement.setAttribute('id', passwordData[i].id);
           temporaryElement.setAttribute('marker-end', "url(#arrowhead)");
           temporaryElement.classList.add("noclick");
+          //make it hidden if the password should currently be hidden
+          if(passwordHiddenBool == 1) {
+            temporaryElement.style.visibility = "hidden";
+          }
           htmlGrid.appendChild(temporaryElement);
         } else if (passwordData[i].type === "point") {
           //draw a point
@@ -310,6 +330,10 @@ function draw_object() {
           temporaryElement.setAttribute("cy", tempFinalY + "%");
           temporaryElement.setAttribute('id', passwordData[i].id);
           temporaryElement.classList.add("noclick");
+          //make it hidden if the password should currently be hidden
+          if(passwordHiddenBool == 1) {
+            temporaryElement.style.visibility = "hidden";
+          }
           htmlGrid.appendChild(temporaryElement);
         } else {
           console.log("draw_password - error: wrong object type");
