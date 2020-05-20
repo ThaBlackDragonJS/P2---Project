@@ -629,14 +629,14 @@ function undo_button() {
     temporaryID = document.getElementById(temporaryElement.id);
     temporaryID.parentNode.removeChild(temporaryID);
   } else {
-    //if it's a "connected lines" object, remove all the lines
+    //if it's a "connected lines" object, remove all the lines from HTML
     for(i = 0; i < temporaryElement.IDs.length-1; ++i) {
       temporaryID = document.getElementById(temporaryElement.IDs[i]);
       temporaryID.parentNode.removeChild(temporaryID);
     }
   }
 
-  //delete the object
+  //delete the object from JS array
   passwordData[passwordObjects-1] = [];
   --passwordObjects;
   --lastDrawnPasswordObjects;
