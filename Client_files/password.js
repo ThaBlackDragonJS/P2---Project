@@ -782,7 +782,7 @@ function update_password_input(inputEvent, inputType){
 //password part of login/signup
 //gets called by "login" / "sign up" buttons
 //input: inOrUp ("login" / "sign up")
-//output: none
+//output: none directly
 //        alerts with appropriate success/failure message
 //        redirects if successful
 function sign_in_or_up_finish(inOrUp) {
@@ -844,10 +844,12 @@ function sign_in_or_up_finish(inOrUp) {
 function hideOrUnhidePassword(){
   switch(passwordHiddenBool){
     case 0:
+      document.getElementById("hideUnhide").setAttribute("src", "hideButton.png");
       hide_password();
       break;
 
     case 1:
+      document.getElementById("hideUnhide").setAttribute("src", "unhideButton.png");
       unhide_password();
       break;
   }
