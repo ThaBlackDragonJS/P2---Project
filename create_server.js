@@ -88,6 +88,20 @@ let server = createServer((request, response) => {
           response.end();
         });
         break;
+      case "/hideButton.png":
+        response.writeHead(200, {"Content-Type": "image/png"});
+        fs.readFile('./Client_files/hideButton.png', function(err, content){
+          response.write(content);
+          response.end();
+        });
+        break;
+      case "/unhideButton.png":
+        response.writeHead(200, {"Content-Type": "image/png"});
+        fs.readFile('./Client_files/unhideButton.png', function(err, content){
+          response.write(content);
+          response.end();
+        });
+        break;
       //-----------------------------encryption---------------------------------
       case "/getPassword":
         response.writeHead(200);
