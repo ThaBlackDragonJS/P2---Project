@@ -38,7 +38,7 @@ let server = createServer((request, response) => {
         break;
       case "/index.css":
         response.writeHead(200, {"Content-Type": "text/css"});
-        fs.readFile('./Client_files/index.css', function(err, content){
+        fs.readFile('./Client_files/CSS/index.css', function(err, content){
           response.write(content);
           response.end();
         });
@@ -46,7 +46,7 @@ let server = createServer((request, response) => {
       //-----------------------------Login: Password section-------------------------
       case "/loginPassword": 
         response.writeHead(200, {"Content-Type": "text/html"});
-        fs.readFile('./Client_files/loginPassword.html', function(err, content){
+        fs.readFile('./Client_files/common/loginPassword.html', function(err, content){
           response.write(content);
           response.end();
         });
@@ -54,7 +54,7 @@ let server = createServer((request, response) => {
       //-----------------------------Sign up: Password section------------------------------
       case "/signUpPassword":
         response.writeHead(200, {"content-type": "text/html"});
-        fs.readFile("./Client_files/signUpPassword.html", function(err, content){
+        fs.readFile("./Client_files/common/signUpPassword.html", function(err, content){
           response.write(content);
           response.end();
         });
@@ -62,42 +62,42 @@ let server = createServer((request, response) => {
       //----------------------------password input, both login and signup---------------------------
       case "/password.css":
         response.writeHead(200, {"Content-Type": "text/css"})
-        fs.readFile('./Client_files/password.css', function(err, content){
+        fs.readFile('./Client_files/CSS/password.css', function(err, content){
           response.write(content);
           response.end();
         });
         break;
       case "/password.js":
         response.writeHead(200, {"Content-Type": "text/js"});
-        fs.readFile('./Client_files/password.js', function(err, content){
+        fs.readFile('./Client_files/JS/password.js', function(err, content){
           response.write(content);
           response.end();
         });
         break;
       case "/resetArrow.png":
         response.writeHead(200, {"Content-Type": "image/png"});
-        fs.readFile('./Client_files/resetArrow.png', function(err, content){
+        fs.readFile('./Client_files/images/resetArrow.png', function(err, content){
           response.write(content);
           response.end();
         });
         break;
       case "/undoArrow.png":
         response.writeHead(200, {"Content-Type": "image/png"});
-        fs.readFile('./Client_files/undoArrow.png', function(err, content){
+        fs.readFile('./Client_files/images/undoArrow.png', function(err, content){
           response.write(content);
           response.end();
         });
         break;
       case "/hideButton.png":
         response.writeHead(200, {"Content-Type": "image/png"});
-        fs.readFile('./Client_files/hideButton.png', function(err, content){
+        fs.readFile('./Client_files/images/hideButton.png', function(err, content){
           response.write(content);
           response.end();
         });
         break;
       case "/unhideButton.png":
         response.writeHead(200, {"Content-Type": "image/png"});
-        fs.readFile('./Client_files/unhideButton.png', function(err, content){
+        fs.readFile('./Client_files/images/unhideButton.png', function(err, content){
           response.write(content);
           response.end();
         });
@@ -118,7 +118,7 @@ let server = createServer((request, response) => {
       //--------------Logged in page--------------
       case "/loggedIn":
         response.writeHead(200, {"content-type": "text/html"});
-        fs.readFile("./Client_files/loggedIn.html", function(err, content){
+        fs.readFile("./Client_files/common/loggedIn.html", function(err, content){
           response.write(content);
           response.end();
         });
