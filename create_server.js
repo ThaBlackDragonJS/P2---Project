@@ -156,7 +156,6 @@ let server = createServer((request, response) => {
             if(requestStartInfo == "sign in ") {
               //if it is in the database: give back "success", else "failure"
               if(emailExists) {
-                console.log("email exists - sending success message");
                 response.write("success");
               }else {
                 response.write("failure");
@@ -207,7 +206,7 @@ let server = createServer((request, response) => {
           //writes back an answer
           response.writeHead(200, {'Content-Type': 'text/html'});
           //check if the encrypted email is in the database
-          let loginCorrect = check_credentials.login_check(origEmail, hashedPassword, callback_login_function);
+          check_credentials.login_check(origEmail, hashedPassword, callback_login_function);
           function callback_login_function(loginCorrect) {
             if(loginCorrect) {
               response.write("success");
