@@ -88,6 +88,20 @@ let server = createServer((request, response) => {
           response.end();
         });
         break;
+      case "/hideButton.png":
+        response.writeHead(200, {"Content-Type": "image/png"});
+        fs.readFile('./Client_files/hideButton.png', function(err, content){
+          response.write(content);
+          response.end();
+        });
+        break;
+      case "/unhideButton.png":
+        response.writeHead(200, {"Content-Type": "image/png"});
+        fs.readFile('./Client_files/unhideButton.png', function(err, content){
+          response.write(content);
+          response.end();
+        });
+        break;
       //-----------------------------encryption---------------------------------
       case "/getPassword":
         response.writeHead(200);
@@ -156,7 +170,6 @@ let server = createServer((request, response) => {
             if(requestStartInfo == "sign in ") {
               //if it is in the database: give back "success", else "failure"
               if(emailExists) {
-                console.log("email exists - sending success message");
                 response.write("success");
               }else {
                 response.write("failure");
@@ -207,7 +220,7 @@ let server = createServer((request, response) => {
           //writes back an answer
           response.writeHead(200, {'Content-Type': 'text/html'});
           //check if the encrypted email is in the database
-          let loginCorrect = check_credentials.login_check(origEmail, hashedPassword, callback_login_function);
+          check_credentials.login_check(origEmail, hashedPassword, callback_login_function);
           function callback_login_function(loginCorrect) {
             if(loginCorrect) {
               response.write("success");
@@ -300,7 +313,8 @@ console.log("Listening! (port " + serverPort + ")");
 
 
 
-
+//Makes a password string back into a password array.
+//This is useful for checking the password requirements
 function password_string_to_array(passwordString) {
   let passwordArray = [];
   let charsRead = 0, //keeps track of how much of the passwordString has been read
@@ -389,6 +403,12 @@ function password_string_to_array(passwordString) {
   return passwordArray;
 }
 
+//Auxiliary function used by password_string_to_array
+//Input: readFrom (string to read from)
+//       skipAmount (where in the string it should start  /  number of characters "skipped")
+//       readAmount (how many characters it should read)
+//
+//Output: a string containing the characters read
 function read_chars(readFrom, skipAmount, readAmount) {
   let i = 0;
   let Body = "";
