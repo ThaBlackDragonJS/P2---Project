@@ -375,7 +375,6 @@ function encrypt_string(input, callback){
   }
 
   //gets the encryption password
-  //throws an error but does work - fix later if there's enough time
   let output = "";
   let xhr = new XMLHttpRequest();
   xhr.open("GET", "getPassword", true);
