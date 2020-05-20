@@ -313,7 +313,8 @@ console.log("Listening! (port " + serverPort + ")");
 
 
 
-
+//Makes a password string back into a password array.
+//This is useful for checking the password requirements
 function password_string_to_array(passwordString) {
   let passwordArray = [];
   let charsRead = 0, //keeps track of how much of the passwordString has been read
@@ -402,6 +403,12 @@ function password_string_to_array(passwordString) {
   return passwordArray;
 }
 
+//Auxiliary function used by password_string_to_array
+//Input: readFrom (string to read from)
+//       skipAmount (where in the string it should start  /  number of characters "skipped")
+//       readAmount (how many characters it should read)
+//
+//Output: a string containing the characters read
 function read_chars(readFrom, skipAmount, readAmount) {
   let i = 0;
   let Body = "";

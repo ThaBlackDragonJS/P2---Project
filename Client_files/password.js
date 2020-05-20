@@ -134,6 +134,16 @@ function clear_input(){
 
 //----------------------------------------------draw_object.js----------------------------------------------
 //draws the object you're currently drawing
+//input: none directly
+//       uses global variables:
+//         clickInputData and clickInputNodes (point/arrow input data and "bookkeeping" for it)
+//         connectedInputData and connectedInputNodes ("connected lines" input data and "bookkeeping" for it)
+//         tempDrawnPasswordData and tempDrawnPasswordNodes (data about the HTML elements drawn in here and "bookkeeping" for it)
+//
+//output: none directly
+//        draws to HTML, and edits some elements when the cursor moves
+//        tempDrawnPasswordData and tempDrawnPasswordNodes are also written to
+//
 function draw_object() {
   let tempX = 0, tempY = 0;
 
@@ -255,6 +265,13 @@ function draw_object() {
 //----------------------------------------------draw_password.js----------------------------------------------
 
 //draws the password objects that have been completed
+//input: none directly
+//       uses global variables:
+//         passwordData and passwordObjects (contains the completed password objects and "bookkeeping" for it)
+//         lastDrawnPasswordObjects ("bookkeeping" - keeps track of how many objects have already been drawn)
+//
+//output: none directly
+//        draws the password to HTML
 function draw_password() {
   let tempLength = 0, tempRotation = 0;
   let tempX1 = 0, tempY1 = 0,
@@ -349,7 +366,6 @@ function draw_password() {
 //teststring
 //var testString = "rfajewriofjwaoigfejb ioergniggdyeiuafreygiueraybiuerayrteaiubyer";
 
-
 function encrypt_string(input, callback){ 
 
   //input != string error handling
@@ -388,7 +404,7 @@ function encrypt_string(input, callback){
 
 //----------------------------------------------initiate_password_grid.js----------------------------------------------
 
-//sets up the password grid
+//sets up the password grid, with event listeners for the circles
 initiate_password_grid();
 function initiate_password_grid() {
   //sets the grid's rectangle's style
@@ -445,6 +461,8 @@ function initiate_password_grid() {
 
 
 //----------------------------------------------password_to_string.js----------------------------------------------
+//Makes a password array into a single password string
+//useful for being able to send the password to the server
 function password_to_string(password) {
   let outputString = "";
   let i = 0, j = 0;
@@ -482,6 +500,7 @@ function password_to_string(password) {
 }
 
 
+//checks if an object (data, not a "password object") is an array and gives back boolean answer
 //from https://stackoverflow.com/questions/4775722/how-to-check-if-an-object-is-an-array
 function isArray(obj){
   return !!obj && obj.constructor === Array;
@@ -596,6 +615,7 @@ function requirement_checker(passwordData, passwordObjects, gridWidth, gridHeigh
 //----------------------------------------------undo_button.js----------------------------------------------
 
 //removes the most recently placed object
+//first removes the HTML element, then the JS data
 function undo_button() {
   if(passwordObjects == 0) {
     return; //do nothing if there's no objects
@@ -629,6 +649,17 @@ function undo_button() {
 //----------------------------------------------update_password_input.js----------------------------------------------
 
 //Object creator + Password creator  --- also calls draw_password to update it, and clear_input to remove the "temporary" objects
+//This function gets called by input events on the circles in the grid
+//
+//input: inputEvent (mouse event, built-in data stricture)
+//       inputType ("press" / "release" / "hover", self-defined data)
+//
+//output: none directly
+//        Changes in global variables:
+//          clickInputData and clickInputNodes (data for point/arrow detection and "bookkeeping" for it)
+//          connectedInputData and connectedInputNodes (data for "connected lines" detection and "bookkeeping" for it)
+//          passwordData and passwordObjects ("final" data for the password and "bookkeeping" for it)
+//
 function update_password_input(inputEvent, inputType){
   //debugging
   /*
@@ -638,7 +669,7 @@ function update_password_input(inputEvent, inputType){
   console.log("");
   */
   
-  //Point and Arrow input
+  //Point and Arrow input---------------------
   if(inputType === "press"){
     //console.log("detected press")
     clickInputData[clickInputNodes] = [];
@@ -684,7 +715,7 @@ function update_password_input(inputEvent, inputType){
     }
   }
 
-  //Connected lines input
+  //Connected lines input-------------------------
   if (inputType === "press" && connectedInputNodes == 0) {
     //press is the start of the input for connected lines
     connectedInputData[connectedInputNodes] = [];
@@ -749,6 +780,11 @@ function update_password_input(inputEvent, inputType){
 
 
 //password part of login/signup
+//gets called by "login" / "sign up" buttons
+//input: inOrUp ("login" / "sign up")
+//output: none
+//        alerts with appropriate success/failure message
+//        redirects if successful
 function sign_in_or_up_finish(inOrUp) {
   //get the email and check if the format is correct
   let email = get_cookie("email");
