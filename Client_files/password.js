@@ -97,9 +97,6 @@ function update_page(e) {
   //console.log("mouseX " + mousePosXY[0] + " mouseY " + mousePosXY[1])
   draw_object();
   update_grid_size();
-  if(passwordHiddenBool == 1) {
-    hide_password(0);
-  }
 }
 
 
@@ -806,10 +803,12 @@ function sign_in_or_up_finish(inOrUp) {
   }
 }
 
+
+//toggles between the password being hidden or shown
 function hideOrUnhidePassword(){
   switch(passwordHiddenBool){
     case 0:
-      hide_password(1);
+      hide_password();
       break;
 
     case 1:
@@ -818,17 +817,20 @@ function hideOrUnhidePassword(){
   }
 }
 
-function hide_password(setBool){
-  if(setBool == 1) {
-    passwordHiddenBool = 1;
-  }
+
+//hides the password, and sets it to keep being hidden
+function hide_password(){
+  passwordHiddenBool = 1;
   let i = 0;
   let noClick = document.getElementsByClassName("noclick");
+  //goes through all the elements, and sets them to being hidden.
   for(i; i < noClick.length; ++i) {
     noClick[i].style.visibility = "hidden";
   }
 }
 
+
+//unhides the password, and sets it to no longer keep being hidden
 function unhide_password() {
   passwordHiddenBool = 0;
   let i = 0;
@@ -838,6 +840,8 @@ function unhide_password() {
   }
 }
 
+
+//gets the encryption password for AES
 let encryptionPassword = get_password();
 function get_password() {
   let output = "";
@@ -853,6 +857,8 @@ function get_password() {
   xhr.send();
 }
 
+
+//gets a cookie - used for getting the email during password part of signup
 //edited from https://www.w3schools.com/js/js_cookies.asp
 function get_cookie(cname) {
   var name = cname + "=";
@@ -869,8 +875,6 @@ function get_cookie(cname) {
   }
   return "";
 }
-
-
 
 
 //email format validation, from https://stackoverflow.com/questions/46155/how-to-validate-an-email-address-in-javascript
