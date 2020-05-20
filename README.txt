@@ -32,11 +32,3 @@ Initial setup of server:
 
 Starting the server:
 -run create_server.js
-
-
-
-
-Files:
--HTML, CSS and PNG files are for the client
--password.js is also for the client
--The rest of the JS files are for the server
