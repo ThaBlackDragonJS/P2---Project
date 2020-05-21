@@ -64,10 +64,6 @@ i = 0;
 let passwordHiddenBool = 0;
 
 
-//updates object colour
-function update_object_colour(inputColour) {
-  currentColour = inputColour;
-}
 
 
 
@@ -153,7 +149,7 @@ function initiate_password_grid() {
 
 
 
-//----------------------------------------------update_password_input----------------------------------------------
+//----------------------------------------------password input----------------------------------------------
 
 //Object creator + Password creator  --- also calls draw_password to update it, and clear_input to remove the "temporary" objects
 //This function gets called by input events on the circles in the grid
@@ -283,6 +279,12 @@ function update_password_input(inputEvent, inputType){
   }
   //update how the password is drawn
   draw_password();
+}
+
+
+//updates object colour
+function update_object_colour(inputColour) {
+  currentColour = inputColour;
 }
 
 
