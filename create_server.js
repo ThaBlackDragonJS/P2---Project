@@ -219,15 +219,21 @@ let server = createServer((request, response) => {
           //console.log("password: " + origPassword);
           //writes back an answer
           response.writeHead(200, {'Content-Type': 'text/html'});
-          //check if the encrypted email is in the database
-          check_credentials.login_check(origEmail, hashedPassword, callback_login_function);
-          function callback_login_function(loginCorrect) {
-            if(loginCorrect) {
-              response.write("success");
-            }else {
-              response.write("failure");
-            }
+          //check if the password is too long (50 nodes = max allowed)
+          if(count_nodes(password_string_to_array(origPassword)) > 50) {
+            response.write("failure");
             response.end();
+          } else {
+            //check if the encrypted email is in the database
+            check_credentials.login_check(origEmail, hashedPassword, callback_login_function);
+            function callback_login_function(loginCorrect) {
+              if(loginCorrect) {
+                response.write("success");
+              }else {
+                response.write("failure");
+              }
+              response.end();
+            }
           }
         });
         break;
@@ -261,10 +267,11 @@ let server = createServer((request, response) => {
           const origPassword = AesCtr.decrypt(encryptedPassword, encryptionPassword, 256); //needs to be hashed later
           const hashedPassword = cluster.call_sha256(origPassword);
 
-          //check password requirements and validates email form
+          //checks password requirements, validates email form and checks if the password is too long (50 nodes is max)
           let passwordArray = password_string_to_array(origPassword);
           if(requirement_checker(passwordArray, passwordArray.length, gridWidth, gridHeight) != 1
-             || validateEmail(origEmail) == false) {
+             || validateEmail(origEmail) == false
+             || count_nodes(passwordArray) > 50) {
             response.writeHead(200);
             response.write("failure");
             response.end();
@@ -422,7 +429,7 @@ function read_chars(readFrom, skipAmount, readAmount) {
 
 
 
-//----------------------------------------------requirement_checker.js----------------------------------------------
+//----------------------------------------------validation functions----------------------------------------------
 //checks if the password is within the password minimum requirements
 //
 //requirements:
@@ -528,4 +535,35 @@ function requirement_checker(passwordData, passwordObjects, gridWidth, gridHeigh
 function validateEmail(email) {
   var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   return re.test(String(email).toLowerCase());
+}
+
+
+
+
+//Counts the number of nodes (unique or not) used in a password.
+//Input: password data (in array, not string)
+//Output: number of nodes used in that password
+function count_nodes(passwordArray) {
+  let i = 0,
+      j = 0,
+      nodesUsed = 0;
+  //Goes through all objects in the password
+  for(i; i < passwordArray.length; ++i) {
+    //splits into cases point/arrow/"connected lines"
+    switch(passwordArray[i].type) {
+      case "point":
+        ++nodesUsed;
+        break;
+      case "arrow":
+        nodesUsed += 2;
+        break;
+      case "connected lines":
+        nodesUsed += passwordArray[i].IDs.length;
+        break;
+      default:
+        console.log('count_nodes - error: wrong object type: "' + passwordArray[i].type + '"');
+        break;
+    }
+  }
+  return nodesUsed;
 }
