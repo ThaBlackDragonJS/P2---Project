@@ -546,7 +546,7 @@ function clear_input(){
 
 
 
-//----------------------------------------------requirement_checker and validateEmail----------------------------------------------
+//----------------------------------------------input validation----------------------------------------------
 //checks if the password is within the password minimum requirements
 //
 //requirements:
@@ -651,6 +651,33 @@ function validateEmail(email) {
   return re.test(String(email).toLowerCase());
 }
 
+//Counts the number of nodes (unique or not) used in a password.
+//Input: password data (in array, not string)
+//Output: number of nodes used in that password
+function count_nodes(passwordArray) {
+  let i = 0,
+      j = 0,
+      nodesUsed = 0;
+  //Goes through all objects in the password
+  for(i; i < passwordArray.length; ++i) {
+    //splits into cases point/arrow/"connected lines"
+    switch(passwordArray[i].type) {
+      case "point":
+        ++nodesUsed;
+        break;
+      case "arrow":
+        nodesUsed += 2;
+        break;
+      case "connected lines":
+        nodesUsed += passwordArray[i].IDs.length;
+        break;
+      default:
+        console.log('count_nodes - error: wrong object type: "' + passwordArray[i].type + '"');
+        break;
+    }
+  }
+  return nodesUsed;
+}
 
 
 
@@ -799,9 +826,14 @@ function sign_in_or_up_finish(inOrUp) {
     alert("Session expired");
     return;
   }
+  //checks if the password is too long
+  if(count_nodes(passwordData) > 50) {
+    alert("Password too long, please use less than 50 nodes");
+    return;
+  }
   //check if the password is within the minimum requirements
   if(requirement_checker(passwordData, passwordObjects, gridWidth, gridHeight) == 0) {
-    alert("Password not within requirements.")
+    alert("Password not within requirements")
     return;
   }
 
