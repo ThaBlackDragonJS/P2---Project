@@ -69,17 +69,9 @@ function update_object_colour(inputColour) {
   currentColour = inputColour;
 }
 
-//removes all placed objects
-function reset_button() {
-  let i, totalToRemove = passwordObjects;
-  for(i = 0; i < totalToRemove; ++i) {
-    undo_button();
-  }
-}
 
 
-
-//-------------------------------------------------cursor position updating + password drawing and grid updating
+//-------------------------------------------------cursor position updating + password drawing updating and grid updating
 //edited, from https://www.dev-notes.com/blog/2008/07/30/get-current-mouse-cursor-position-with-javascript/
 //Updates cursor position on mouse movement
 init();
@@ -103,305 +95,7 @@ function update_page(e) {
 
 
 
-
-//----------------------------------------------clear_inputs.js----------------------------------------------
-//clears the currently drawn object(s)
-function clear_input(){
-  let i;
-  //first delete the data from HTML
-  for(i = 0; i < tempDrawnPasswordNodes; ++i) {
-    //each temp object can be either an "arrow/point" or a "connected lines segment"
-    //first, if it's an "arrows/point", remove the arrow
-    if(tempDrawnPasswordData[0][1].id == "tempObjectArrow") {
-      tempDrawnPasswordData[i][0].parentNode.removeChild(tempDrawnPasswordData[i][0]);
-    }
-    //then, regardless of which type it is, remove the [i][1] index (these indexes are used for both points and connected lines)
-    tempDrawnPasswordData[i][1].parentNode.removeChild(tempDrawnPasswordData[i][1]);
-    //it can be used for both, since they can't both be drawn at once
-  }
-  //Then delete the data from JS
-  tempDrawnPasswordNodes = 0;
-  tempDrawnPasswordData = [];
-  clickInputData = [];
-  clickInputNodes = 0;
-  connectedInputData = [];
-  connectedInputNodes = 0;
-}
-
-
-
-
-
-//----------------------------------------------draw_object.js----------------------------------------------
-//draws the object you're currently drawing
-//input: none directly
-//       uses global variables:
-//         clickInputData and clickInputNodes (point/arrow input data and "bookkeeping" for it)
-//         connectedInputData and connectedInputNodes ("connected lines" input data and "bookkeeping" for it)
-//         tempDrawnPasswordData and tempDrawnPasswordNodes (data about the HTML elements drawn in here and "bookkeeping" for it)
-//
-//output: none directly
-//        draws to HTML, and edits some elements when the cursor moves
-//        tempDrawnPasswordData and tempDrawnPasswordNodes are also written to
-//
-function draw_object() {
-  let tempX = 0, tempY = 0;
-
-  //Only draw a point/arrow if there are click input nodes used
-  if(connectedInputNodes > 1) {
-    //draw connected lines
-    //If there is an arrow/point, delete it
-    if(tempDrawnPasswordNodes > 0 && tempDrawnPasswordData[0][1].id == "tempObjectArrow") {
-      tempDrawnPasswordData[0][0].parentNode.removeChild(tempDrawnPasswordData[0][0]);
-      tempDrawnPasswordData[0][1].parentNode.removeChild(tempDrawnPasswordData[0][1]);
-      tempDrawnPasswordNodes = 0;
-      tempDrawnPasswordData = [];
-    }
-    //do the connected lines drawing
-    for(i = tempDrawnPasswordNodes; i <= connectedInputNodes; ++i) {
-      //Make an arrow
-      if(tempDrawnPasswordNodes != connectedInputNodes) { //only draw from start if it hasn't been drawn already
-        tempDrawnPasswordData[tempDrawnPasswordNodes] = [];
-        tempDrawnPasswordData[tempDrawnPasswordNodes][1] = document.createElementNS("http://www.w3.org/2000/svg", "line");
-        //set the first coordinate, in percentage within the grid
-        tempX1 = (gridCircMargin+(gridCircDistance*connectedInputData[tempDrawnPasswordNodes].id[7]));
-        tempY1 = (gridCircMargin+(gridCircDistance*connectedInputData[tempDrawnPasswordNodes].id[9]));
-        tempDrawnPasswordData[tempDrawnPasswordNodes][1].setAttribute('x1', tempX1 + "%");
-        tempDrawnPasswordData[tempDrawnPasswordNodes][1].setAttribute('y1', tempY1 + "%");
-        //set the second coordinate, in pixel coordinates within the viewport
-        tempX2 = (mousePosXY[0]-gridOffsetXY[0]);
-        tempY2 = (mousePosXY[1]-gridOffsetXY[1]);
-        tempDrawnPasswordData[tempDrawnPasswordNodes][1].setAttribute('x2', tempX2);
-        tempDrawnPasswordData[tempDrawnPasswordNodes][1].setAttribute('y2', tempY2);
-        //set other values
-        tempDrawnPasswordData[tempDrawnPasswordNodes][1].setAttribute('stroke-width', gridStrokeWidth + "%");
-        tempDrawnPasswordData[tempDrawnPasswordNodes][1].setAttribute('stroke', currentColour);
-        tempDrawnPasswordData[tempDrawnPasswordNodes][1].setAttribute('marker-end', "url(#arrowhead)");
-        tempDrawnPasswordData[tempDrawnPasswordNodes][1].classList.add("noclick");
-        tempDrawnPasswordData[0][1].id = "tempObjectConnected";
-        //make it hidden if the password should currently be hidden
-        if(passwordHiddenBool == 1) {
-          tempDrawnPasswordData[tempDrawnPasswordNodes][1].style.visibility = "hidden";
-        }
-        htmlGrid.appendChild(tempDrawnPasswordData[tempDrawnPasswordNodes][1]);
-        //only increase the number of nodes when drawing a new line
-        ++tempDrawnPasswordNodes;
-      } else if(tempDrawnPasswordNodes != 0) { //if it has been drawn, update its end placement and previous lines end placement
-        //make the arrow 20% shorter than the distance to the cursor
-        //change the current lines 2nd coordinate, again in pixel coordinates within the viewport
-        tempX2 = (mousePosXY[0]-gridOffsetXY[0]);
-        tempY2 = (mousePosXY[1]-gridOffsetXY[1]);
-        tempDrawnPasswordData[tempDrawnPasswordNodes-1][1].setAttribute('x2', tempX2);
-        tempDrawnPasswordData[tempDrawnPasswordNodes-1][1].setAttribute('y2', tempY2);  
-        //set the prior lines second coordinate, in percentage within the grid
-        tempX2 = (gridCircMargin+(gridCircDistance*connectedInputData[tempDrawnPasswordNodes-1].id[7]));
-        tempY2 = (gridCircMargin+(gridCircDistance*connectedInputData[tempDrawnPasswordNodes-1].id[9]));
-        tempDrawnPasswordData[tempDrawnPasswordNodes-2][1].setAttribute('x2', tempX2 + "%");
-        tempDrawnPasswordData[tempDrawnPasswordNodes-2][1].setAttribute('y2', tempY2 + "%");
-        //update the prior line to not be an arrow
-        tempDrawnPasswordData[tempDrawnPasswordNodes-2][1].setAttribute('marker-end', "");
-      }
-    }
-  } else { //if it isn't connected lines, draw arrow/point
-    //draw point/arrow
-    //draw a gray point and a gray arrow, since we don't know which it will end up being
-    //---first the point
-    tempDrawnPasswordData[tempDrawnPasswordNodes] = [];
-    if(tempDrawnPasswordNodes != clickInputNodes) { //only draw if it hasn't been drawn already
-      tempDrawnPasswordData[tempDrawnPasswordNodes][0] = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-      tempDrawnPasswordData[tempDrawnPasswordNodes][0].style.r = passwordDotRadius + "%";
-      tempDrawnPasswordData[tempDrawnPasswordNodes][0].style.fill = currentColour;
-      tempX = (gridCircMargin+(gridCircDistance*clickInputData[tempDrawnPasswordNodes].id[7]));
-      tempY = (gridCircMargin+(gridCircDistance*clickInputData[tempDrawnPasswordNodes].id[9]));
-      tempDrawnPasswordData[tempDrawnPasswordNodes][0].setAttribute("cx", tempX + "%");
-      tempDrawnPasswordData[tempDrawnPasswordNodes][0].setAttribute("cy", tempY + "%");
-      tempDrawnPasswordData[tempDrawnPasswordNodes][0].classList.add("noclick");
-      //make it hidden if the password should currently be hidden
-      if(passwordHiddenBool == 1) {
-        tempDrawnPasswordData[tempDrawnPasswordNodes][0].style.visibility = "hidden";
-      }
-      htmlGrid.appendChild(tempDrawnPasswordData[tempDrawnPasswordNodes][0]);
-    }
-    //---then the arrow
-    if(tempDrawnPasswordNodes != clickInputNodes) { //only draw from start if it hasn't been drawn already
-      tempDrawnPasswordData[tempDrawnPasswordNodes][1] = document.createElementNS("http://www.w3.org/2000/svg", "line");
-      //set the first coordinate, in percentage within the grid
-      tempX1 = (gridCircMargin+(gridCircDistance*clickInputData[tempDrawnPasswordNodes].id[7]));
-      tempY1 = (gridCircMargin+(gridCircDistance*clickInputData[tempDrawnPasswordNodes].id[9]));
-      tempDrawnPasswordData[tempDrawnPasswordNodes][1].setAttribute('x1', tempX1 + "%");
-      tempDrawnPasswordData[tempDrawnPasswordNodes][1].setAttribute('y1', tempY1 + "%");
-      //set the second coordinate, in pixel coordinates within the viewport
-      tempX2 = (mousePosXY[0]-gridOffsetXY[0]);
-      tempY2 = (mousePosXY[1]-gridOffsetXY[1]);
-      tempDrawnPasswordData[tempDrawnPasswordNodes][1].setAttribute('x2', tempX2);
-      tempDrawnPasswordData[tempDrawnPasswordNodes][1].setAttribute('y2', tempY2);
-      //set other values
-      tempDrawnPasswordData[tempDrawnPasswordNodes][1].setAttribute('stroke-width', gridStrokeWidth + "%");
-      tempDrawnPasswordData[tempDrawnPasswordNodes][1].setAttribute('stroke', currentColour);
-      tempDrawnPasswordData[tempDrawnPasswordNodes][1].setAttribute('marker-end', "url(#arrowhead)");
-      tempDrawnPasswordData[tempDrawnPasswordNodes][1].classList.add("noclick");
-      tempDrawnPasswordData[tempDrawnPasswordNodes][1].id = "tempObjectArrow";
-      //make it hidden if the password should currently be hidden
-      if(passwordHiddenBool == 1) {
-        tempDrawnPasswordData[tempDrawnPasswordNodes][1].style.visibility = "hidden";
-      }
-      htmlGrid.appendChild(tempDrawnPasswordData[tempDrawnPasswordNodes][1]);
-      //only increase the number of nodes when drawing a new line
-      ++tempDrawnPasswordNodes;
-    } else if(tempDrawnPasswordNodes != 0) { //if it has been drawn, update its end placement
-      //change the 2nd coordinate, again in pixel coordinates within the viewport
-      tempX2 = (mousePosXY[0]-gridOffsetXY[0]);
-      tempY2 = (mousePosXY[1]-gridOffsetXY[1]);
-      tempDrawnPasswordData[tempDrawnPasswordNodes-1][1].setAttribute('x2', tempX2);
-      tempDrawnPasswordData[tempDrawnPasswordNodes-1][1].setAttribute('y2', tempY2);  
-    }
-  }
-}
-
-
-
-
-
-//----------------------------------------------draw_password.js----------------------------------------------
-
-//draws the password objects that have been completed
-//input: none directly
-//       uses global variables:
-//         passwordData and passwordObjects (contains the completed password objects and "bookkeeping" for it)
-//         lastDrawnPasswordObjects ("bookkeeping" - keeps track of how many objects have already been drawn)
-//
-//output: none directly
-//        draws the password to HTML
-function draw_password() {
-  let tempLength = 0, tempRotation = 0;
-  let tempX1 = 0, tempY1 = 0,
-      tempX2 = 0, tempY2 = 0;
-  let tempSlope1 = 0, tempSlope2 = 0, 
-      tempHeight = 0,
-      tempIntersectX = 0, tempIntersectY = 0,
-      tempFinalX = 0, tempFinalY = 0,
-      finalX = 0, finalY = 0;
-  let i = 0, j = 0;
-  //start at the number of drawn objects to avoid re-drawing them
-  for(i = lastDrawnPasswordObjects; i < passwordObjects; ++i) {
-    //find out if it's a point, arrow or connected lines
-    if(passwordData[i].type === "connected lines") {
-      //draw connected lines
-      for(j = 0; j < passwordData[i].IDs.length-1; ++j) {
-        //draw a line
-        temporaryElement = document.createElementNS("http://www.w3.org/2000/svg", "line");
-        tempX1 = (gridCircMargin+(gridCircDistance*passwordData[i].IDs[j][7]));
-        tempY1 = (gridCircMargin+(gridCircDistance*passwordData[i].IDs[j][9]));
-        tempX2 = (gridCircMargin+(gridCircDistance*passwordData[i].IDs[j+1][7]));
-        tempY2 = (gridCircMargin+(gridCircDistance*passwordData[i].IDs[j+1][9]));
-        temporaryElement.setAttribute('stroke-width', gridStrokeWidth + "%");
-        temporaryElement.setAttribute('stroke', currentColour);
-        temporaryElement.setAttribute('x1', tempX1 + "%");
-        temporaryElement.setAttribute('y1', tempY1 + "%");
-        temporaryElement.setAttribute('x2', tempX2 + "%");
-        temporaryElement.setAttribute('y2', tempY2 + "%");
-        temporaryElement.setAttribute('id', passwordData[i].IDs[j]);
-        temporaryElement.classList.add("noclick");
-        //draw an arrowhead if it's the last line
-        if(j === passwordData[i].IDs.length-2) {
-          temporaryElement.setAttribute('marker-end', "url(#arrowhead)");
-        }
-        //make it hidden if the password should currently be hidden
-        if(passwordHiddenBool == 1) {
-          temporaryElement.style.visibility = "hidden";
-        }
-        htmlGrid.appendChild(temporaryElement);
-      }
-    } else if (passwordData[i].type === "arrow"){
-      //draw an arrow
-      temporaryElement = document.createElementNS("http://www.w3.org/2000/svg", "line");
-      tempX1 = (gridCircMargin+(gridCircDistance*passwordData[i].idStart[7]));
-      tempY1 = (gridCircMargin+(gridCircDistance*passwordData[i].idStart[9]));
-      tempX2 = (gridCircMargin+(gridCircDistance*passwordData[i].idEnd[7]));
-      tempY2 = (gridCircMargin+(gridCircDistance*passwordData[i].idEnd[9]));
-      temporaryElement.setAttribute('stroke-width', gridStrokeWidth + "%");
-      temporaryElement.setAttribute('stroke', currentColour);
-      temporaryElement.setAttribute('x1', tempX1 + "%");
-      temporaryElement.setAttribute('y1', tempY1 + "%");
-      temporaryElement.setAttribute('x2', tempX2 + "%");
-      temporaryElement.setAttribute('y2', tempY2 + "%");
-      temporaryElement.setAttribute('id', passwordData[i].id);
-      temporaryElement.setAttribute('marker-end', "url(#arrowhead)");
-      temporaryElement.classList.add("noclick");
-      //make it hidden if the password should currently be hidden
-      if(passwordHiddenBool == 1) {
-        temporaryElement.style.visibility = "hidden";
-      }
-      htmlGrid.appendChild(temporaryElement);
-    } else if (passwordData[i].type === "point") {
-      //draw a point
-      temporaryElement = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-      temporaryElement.setAttribute("r", passwordDotRadius + "%");
-      temporaryElement.style.fill = currentColour;
-      tempFinalX = (gridCircMargin+(gridCircDistance*passwordData[i].id[7]));
-      tempFinalY = (gridCircMargin+(gridCircDistance*passwordData[i].id[9]));
-      temporaryElement.setAttribute("cx", tempFinalX + "%");
-      temporaryElement.setAttribute("cy", tempFinalY + "%");
-      temporaryElement.setAttribute('id', passwordData[i].id);
-      temporaryElement.classList.add("noclick");
-      //make it hidden if the password should currently be hidden
-      if(passwordHiddenBool == 1) {
-        temporaryElement.style.visibility = "hidden";
-      }
-      htmlGrid.appendChild(temporaryElement);
-    } else {
-      console.log("draw_password - error: wrong object type");
-    }
-    ++lastDrawnPasswordObjects;
-  }
-}
-
-
-
-
-
-//----------------------------------------------encrypt_string.js----------------------------------------------
-//encryption from https://www.movable-type.co.uk/scripts/aes.html
-
-//teststring
-//var testString = "rfajewriofjwaoigfejb ioergniggdyeiuafreygiueraybiuerayrteaiubyer";
-
-function encrypt_string(input, callback){ 
-
-  //input != string error handling
-  if (typeof input != "string"){
-    console.log("encrypt_string - error: input is not a string");
-    return;
-  }
-
-  //gets the encryption password
-  let output = "";
-  let xhr = new XMLHttpRequest();
-  xhr.open("GET", "getPassword", true);
-  xhr.onreadystatechange = function() {
-    if (xhr.readyState === 4) {
-      output = xhr.responseText;
-      encryptionPassword = output;
-      //encrypting function
-      const ciphertext = Aes.Ctr.encrypt(input, encryptionPassword, 256);
-      /*console.log("encryption password: " + encryptionPassword);
-      console.log("ciphertext: " + ciphertext);
-      const origtext = Aes.Ctr.decrypt(ciphertext, encryptionPassword, 256);
-      console.log("original: " + origtext);*/
-
-      //returns using a callback
-      callback(ciphertext);
-    }
-  }
-  xhr.send();
-}
-
-
-
-
-
-
-//----------------------------------------------initiate_password_grid.js----------------------------------------------
+//----------------------------------------------initiate_password_grid----------------------------------------------
 
 //sets up the password grid, with event listeners for the circles
 initiate_password_grid();
@@ -459,193 +153,7 @@ function initiate_password_grid() {
 
 
 
-//----------------------------------------------password_to_string.js----------------------------------------------
-//Makes a password array into a single password string
-//useful for being able to send the password to the server
-function password_to_string(password) {
-  let outputString = "";
-  let i = 0, j = 0;
-  //Checks the correctness of the input
-  if (isArray(password) != true) {
-    console.log("password_to_string - error: password not an array");
-    return;
-  }
-  //goes through all objects in the password
-  for(i = 0; i < password.length; ++i) {
-    //the undo button doesn't completely delete data, this ignores deleted data
-    if(password[i].type != undefined) {
-      //splits into cases point / arrow / connected lines
-      //always first adds the type, to make it easier to convert back into an array
-      outputString += password[i].type + " ";
-      //then always adds the colour, since every object has exactly 1 "colour" property
-      outputString += password[i].colour + " ";
-      if(password[i].type == "point") {
-        outputString += password[i].id + " ";
-      } else if(password[i].type == "arrow") {
-        outputString += password[i].id + " ";
-        outputString += password[i].idStart + " ";
-        outputString += password[i].idEnd + " ";
-      } else if(password[i].type == "connected lines") {
-        //add all the IDs
-        for(j = 0; j < password[i].IDs.length; ++j) {
-          outputString += password[i].IDs[j] + " ";
-        }
-      } else {
-        console.log("password_to_string - error: wrong object type")
-      }
-    }
-  }
-  return outputString;
-}
-
-
-//checks if an object (data, not a "password object") is an array and gives back boolean answer
-//from https://stackoverflow.com/questions/4775722/how-to-check-if-an-object-is-an-array
-function isArray(obj){
-  return !!obj && obj.constructor === Array;
-}
-
-
-
-
-
-//----------------------------------------------requirement_checker.js----------------------------------------------
-//checks if the password is within the password minimum requirements
-//
-//requirements:
-// -at least 2 colours used
-// -at least 10 unique nodes used
-//
-//input: passwordData array + passwordObjects
-//output: "boolean" 1/0 (yes/no) ("is it within requirements?")
-function requirement_checker(passwordData, passwordObjects, gridWidth, gridHeight) {
-            //used   R  G  B   "boolean" values
-  let coloursUsed = [0, 0, 0],
-      uniqueNodesUsed = [], //used coordinates, again "boolean" values
-      uniqueNodesUsedCounter = 0;
-  let i = 0, j = 0;
-  let tempX = 0, tempY = 0;
-
-  //input error handling
-  if(typeof gridHeight != "number" || typeof gridWidth != "number") {
-    console.log("requirement_checker - error: gridHeight and/or gridWidth not a number")
-    return;
-  }
-  if(typeof passwordObjects != "number") {
-    console.log("requirement_checker - error: passwordObjects not a number")
-    return;
-  }
-  if(passwordObjects == 0) {
-    return 0; //not within requirements
-  } else if (passwordObjects < 0) {
-    console.log("requirement_checker - error: passwordObjects less than 0")
-    return;
-  }
-
-
-  //finds colours used
-  for(i = 0; i < passwordObjects; ++i) {
-    if(passwordData[i].colour == "rgb(255, 52, 52)") {
-      coloursUsed[0] = 1;
-    } else if (passwordData[i].colour == "rgb(129,225,129)") {
-      coloursUsed[1] = 1;
-    } else if (passwordData[i].colour == "rgb( 24, 24,255)") {
-      coloursUsed[2] = 1;
-    } else {
-      console.log("requirement_checker - error: wrong colour");
-    }
-  }
-  //checks colours used
-  if(coloursUsed[0] + coloursUsed[1] + coloursUsed[2] < 2) {
-    //console.log("fail: colours used is " + (coloursUsed[0] + coloursUsed[1] + coloursUsed[2]));
-    return 0; //not within requirements
-  }
-
-  //makes uniqueNodesUsed into a 2D array and sets everything to 0
-  for(i = 0; i < gridHeight; ++i) {
-    uniqueNodesUsed[i] = [];
-    //set all indexes to 0
-    for(j = 0; j < gridWidth; ++j){
-      uniqueNodesUsed[i][j] = 0;
-    }
-  }
-  //finds unique nodes used
-  for(i = 0; i < passwordObjects; ++i) {
-    //separate into cases point / arrow / connected lines
-    if(passwordData[i].type == "point") {
-      tempX = passwordData[i].id[7];
-      tempY = passwordData[i].id[9];
-      uniqueNodesUsed[tempX][tempY] = 1;
-    } else if(passwordData[i].type == "arrow") {
-      tempX = passwordData[i].idStart[7];
-      tempY = passwordData[i].idStart[9];
-      uniqueNodesUsed[tempX][tempY] = 1;
-      tempX = passwordData[i].idEnd[7];
-      tempY = passwordData[i].idEnd[9];
-      uniqueNodesUsed[tempX][tempY] = 1;
-    } else if(passwordData[i].type == "connected lines") {
-      for(j = 0; j < passwordData[i].IDs.length; ++j) {
-        tempX = passwordData[i].IDs[j][7];
-        tempY = passwordData[i].IDs[j][9];
-        uniqueNodesUsed[tempX][tempY] = 1;
-      }
-    } else {
-      console.log("requirement_checker - error: wrong password object type");
-    }
-  }
-
-  //checks unique nodes used
-  for(i = 0; i < gridHeight; ++i) {
-    for(j = 0; j < gridWidth; ++j){
-      uniqueNodesUsedCounter += uniqueNodesUsed[i][j];
-    }
-  }
-  if(uniqueNodesUsedCounter < 10) {
-    //console.log("fail: nodes used is " + uniqueNodesUsedCounter);
-    return 0; //not within requirements
-  }
-  return 1; //within requirements
-}
-
-
-
-
-
-//----------------------------------------------undo_button.js----------------------------------------------
-
-//removes the most recently placed object
-//first removes the HTML element, then the JS data
-function undo_button() {
-  if(passwordObjects == 0) {
-    return; //do nothing if there's no objects
-  }
-  let temporaryID;
-  let temporaryElement = passwordData[passwordObjects-1];
-  let i = 0;
-
-  //if it's an arrow/point, delete the 1 html element
-  if(temporaryElement.type == "arrow" || temporaryElement.type == "point") {
-    temporaryID = document.getElementById(temporaryElement.id);
-    temporaryID.parentNode.removeChild(temporaryID);
-  } else {
-    //if it's a "connected lines" object, remove all the lines from HTML
-    for(i = 0; i < temporaryElement.IDs.length-1; ++i) {
-      temporaryID = document.getElementById(temporaryElement.IDs[i]);
-      temporaryID.parentNode.removeChild(temporaryID);
-    }
-  }
-
-  //delete the object from JS array
-  passwordData[passwordObjects-1] = [];
-  --passwordObjects;
-  --lastDrawnPasswordObjects;
-}
-
-
-
-
-
-//----------------------------------------------update_password_input.js----------------------------------------------
+//----------------------------------------------update_password_input----------------------------------------------
 
 //Object creator + Password creator  --- also calls draw_password to update it, and clear_input to remove the "temporary" objects
 //This function gets called by input events on the circles in the grid
@@ -778,6 +286,506 @@ function update_password_input(inputEvent, inputType){
 }
 
 
+
+
+
+//----------------------------------------------draw_object----------------------------------------------
+//draws the object you're currently drawing
+//input: none directly
+//       uses global variables:
+//         clickInputData and clickInputNodes (point/arrow input data and "bookkeeping" for it)
+//         connectedInputData and connectedInputNodes ("connected lines" input data and "bookkeeping" for it)
+//         tempDrawnPasswordData and tempDrawnPasswordNodes (data about the HTML elements drawn in here and "bookkeeping" for it)
+//
+//output: none directly
+//        draws to HTML, and edits some elements when the cursor moves
+//        tempDrawnPasswordData and tempDrawnPasswordNodes are also written to
+//
+function draw_object() {
+  let tempX = 0, tempY = 0;
+
+  //Only draw a point/arrow if there are click input nodes used
+  if(connectedInputNodes > 1) {
+    //draw connected lines
+    //If there is an arrow/point, delete it
+    if(tempDrawnPasswordNodes > 0 && tempDrawnPasswordData[0][1].id == "tempObjectArrow") {
+      tempDrawnPasswordData[0][0].parentNode.removeChild(tempDrawnPasswordData[0][0]);
+      tempDrawnPasswordData[0][1].parentNode.removeChild(tempDrawnPasswordData[0][1]);
+      tempDrawnPasswordNodes = 0;
+      tempDrawnPasswordData = [];
+    }
+    //do the connected lines drawing
+    for(i = tempDrawnPasswordNodes; i <= connectedInputNodes; ++i) {
+      //Make an arrow
+      if(tempDrawnPasswordNodes != connectedInputNodes) { //only draw from start if it hasn't been drawn already
+        tempDrawnPasswordData[tempDrawnPasswordNodes] = [];
+        tempDrawnPasswordData[tempDrawnPasswordNodes][1] = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        //set the first coordinate, in percentage within the grid
+        tempX1 = (gridCircMargin+(gridCircDistance*connectedInputData[tempDrawnPasswordNodes].id[7]));
+        tempY1 = (gridCircMargin+(gridCircDistance*connectedInputData[tempDrawnPasswordNodes].id[9]));
+        tempDrawnPasswordData[tempDrawnPasswordNodes][1].setAttribute('x1', tempX1 + "%");
+        tempDrawnPasswordData[tempDrawnPasswordNodes][1].setAttribute('y1', tempY1 + "%");
+        //set the second coordinate, in pixel coordinates within the viewport
+        tempX2 = (mousePosXY[0]-gridOffsetXY[0]);
+        tempY2 = (mousePosXY[1]-gridOffsetXY[1]);
+        tempDrawnPasswordData[tempDrawnPasswordNodes][1].setAttribute('x2', tempX2);
+        tempDrawnPasswordData[tempDrawnPasswordNodes][1].setAttribute('y2', tempY2);
+        //set other values
+        tempDrawnPasswordData[tempDrawnPasswordNodes][1].setAttribute('stroke-width', gridStrokeWidth + "%");
+        tempDrawnPasswordData[tempDrawnPasswordNodes][1].setAttribute('stroke', currentColour);
+        tempDrawnPasswordData[tempDrawnPasswordNodes][1].setAttribute('marker-end', "url(#arrowhead)");
+        tempDrawnPasswordData[tempDrawnPasswordNodes][1].classList.add("noclick");
+        tempDrawnPasswordData[0][1].id = "tempObjectConnected";
+        //make it hidden if the password should currently be hidden
+        if(passwordHiddenBool == 1) {
+          tempDrawnPasswordData[tempDrawnPasswordNodes][1].style.visibility = "hidden";
+        }
+        htmlGrid.appendChild(tempDrawnPasswordData[tempDrawnPasswordNodes][1]);
+        //only increase the number of nodes when drawing a new line
+        ++tempDrawnPasswordNodes;
+      } else if(tempDrawnPasswordNodes != 0) { //if it has been drawn, update its end placement and previous lines end placement
+        //make the arrow 20% shorter than the distance to the cursor
+        //change the current lines 2nd coordinate, again in pixel coordinates within the viewport
+        tempX2 = (mousePosXY[0]-gridOffsetXY[0]);
+        tempY2 = (mousePosXY[1]-gridOffsetXY[1]);
+        tempDrawnPasswordData[tempDrawnPasswordNodes-1][1].setAttribute('x2', tempX2);
+        tempDrawnPasswordData[tempDrawnPasswordNodes-1][1].setAttribute('y2', tempY2);  
+        //set the prior lines second coordinate, in percentage within the grid
+        tempX2 = (gridCircMargin+(gridCircDistance*connectedInputData[tempDrawnPasswordNodes-1].id[7]));
+        tempY2 = (gridCircMargin+(gridCircDistance*connectedInputData[tempDrawnPasswordNodes-1].id[9]));
+        tempDrawnPasswordData[tempDrawnPasswordNodes-2][1].setAttribute('x2', tempX2 + "%");
+        tempDrawnPasswordData[tempDrawnPasswordNodes-2][1].setAttribute('y2', tempY2 + "%");
+        //update the prior line to not be an arrow
+        tempDrawnPasswordData[tempDrawnPasswordNodes-2][1].setAttribute('marker-end', "");
+      }
+    }
+  } else { //if it isn't connected lines, draw arrow/point
+    //draw point/arrow
+    //draw a gray point and a gray arrow, since we don't know which it will end up being
+    //---first the point
+    tempDrawnPasswordData[tempDrawnPasswordNodes] = [];
+    if(tempDrawnPasswordNodes != clickInputNodes) { //only draw if it hasn't been drawn already
+      tempDrawnPasswordData[tempDrawnPasswordNodes][0] = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      tempDrawnPasswordData[tempDrawnPasswordNodes][0].style.r = passwordDotRadius + "%";
+      tempDrawnPasswordData[tempDrawnPasswordNodes][0].style.fill = currentColour;
+      tempX = (gridCircMargin+(gridCircDistance*clickInputData[tempDrawnPasswordNodes].id[7]));
+      tempY = (gridCircMargin+(gridCircDistance*clickInputData[tempDrawnPasswordNodes].id[9]));
+      tempDrawnPasswordData[tempDrawnPasswordNodes][0].setAttribute("cx", tempX + "%");
+      tempDrawnPasswordData[tempDrawnPasswordNodes][0].setAttribute("cy", tempY + "%");
+      tempDrawnPasswordData[tempDrawnPasswordNodes][0].classList.add("noclick");
+      //make it hidden if the password should currently be hidden
+      if(passwordHiddenBool == 1) {
+        tempDrawnPasswordData[tempDrawnPasswordNodes][0].style.visibility = "hidden";
+      }
+      htmlGrid.appendChild(tempDrawnPasswordData[tempDrawnPasswordNodes][0]);
+    }
+    //---then the arrow
+    if(tempDrawnPasswordNodes != clickInputNodes) { //only draw from start if it hasn't been drawn already
+      tempDrawnPasswordData[tempDrawnPasswordNodes][1] = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      //set the first coordinate, in percentage within the grid
+      tempX1 = (gridCircMargin+(gridCircDistance*clickInputData[tempDrawnPasswordNodes].id[7]));
+      tempY1 = (gridCircMargin+(gridCircDistance*clickInputData[tempDrawnPasswordNodes].id[9]));
+      tempDrawnPasswordData[tempDrawnPasswordNodes][1].setAttribute('x1', tempX1 + "%");
+      tempDrawnPasswordData[tempDrawnPasswordNodes][1].setAttribute('y1', tempY1 + "%");
+      //set the second coordinate, in pixel coordinates within the viewport
+      tempX2 = (mousePosXY[0]-gridOffsetXY[0]);
+      tempY2 = (mousePosXY[1]-gridOffsetXY[1]);
+      tempDrawnPasswordData[tempDrawnPasswordNodes][1].setAttribute('x2', tempX2);
+      tempDrawnPasswordData[tempDrawnPasswordNodes][1].setAttribute('y2', tempY2);
+      //set other values
+      tempDrawnPasswordData[tempDrawnPasswordNodes][1].setAttribute('stroke-width', gridStrokeWidth + "%");
+      tempDrawnPasswordData[tempDrawnPasswordNodes][1].setAttribute('stroke', currentColour);
+      tempDrawnPasswordData[tempDrawnPasswordNodes][1].setAttribute('marker-end', "url(#arrowhead)");
+      tempDrawnPasswordData[tempDrawnPasswordNodes][1].classList.add("noclick");
+      tempDrawnPasswordData[tempDrawnPasswordNodes][1].id = "tempObjectArrow";
+      //make it hidden if the password should currently be hidden
+      if(passwordHiddenBool == 1) {
+        tempDrawnPasswordData[tempDrawnPasswordNodes][1].style.visibility = "hidden";
+      }
+      htmlGrid.appendChild(tempDrawnPasswordData[tempDrawnPasswordNodes][1]);
+      //only increase the number of nodes when drawing a new line
+      ++tempDrawnPasswordNodes;
+    } else if(tempDrawnPasswordNodes != 0) { //if it has been drawn, update its end placement
+      //change the 2nd coordinate, again in pixel coordinates within the viewport
+      tempX2 = (mousePosXY[0]-gridOffsetXY[0]);
+      tempY2 = (mousePosXY[1]-gridOffsetXY[1]);
+      tempDrawnPasswordData[tempDrawnPasswordNodes-1][1].setAttribute('x2', tempX2);
+      tempDrawnPasswordData[tempDrawnPasswordNodes-1][1].setAttribute('y2', tempY2);  
+    }
+  }
+}
+
+
+
+
+
+//----------------------------------------------draw_password----------------------------------------------
+
+//draws the password objects that have been completed
+//input: none directly
+//       uses global variables:
+//         passwordData and passwordObjects (contains the completed password objects and "bookkeeping" for it)
+//         lastDrawnPasswordObjects ("bookkeeping" - keeps track of how many objects have already been drawn)
+//
+//output: none directly
+//        draws the password to HTML
+function draw_password() {
+  let tempLength = 0, tempRotation = 0;
+  let tempX1 = 0, tempY1 = 0,
+      tempX2 = 0, tempY2 = 0;
+  let tempSlope1 = 0, tempSlope2 = 0, 
+      tempHeight = 0,
+      tempIntersectX = 0, tempIntersectY = 0,
+      tempFinalX = 0, tempFinalY = 0,
+      finalX = 0, finalY = 0;
+  let i = 0, j = 0;
+  //start at the number of drawn objects to avoid re-drawing them
+  for(i = lastDrawnPasswordObjects; i < passwordObjects; ++i) {
+    //find out if it's a point, arrow or connected lines
+    if(passwordData[i].type === "connected lines") {
+      //draw connected lines
+      for(j = 0; j < passwordData[i].IDs.length-1; ++j) {
+        //draw a line
+        temporaryElement = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        tempX1 = (gridCircMargin+(gridCircDistance*passwordData[i].IDs[j][7]));
+        tempY1 = (gridCircMargin+(gridCircDistance*passwordData[i].IDs[j][9]));
+        tempX2 = (gridCircMargin+(gridCircDistance*passwordData[i].IDs[j+1][7]));
+        tempY2 = (gridCircMargin+(gridCircDistance*passwordData[i].IDs[j+1][9]));
+        temporaryElement.setAttribute('stroke-width', gridStrokeWidth + "%");
+        temporaryElement.setAttribute('stroke', currentColour);
+        temporaryElement.setAttribute('x1', tempX1 + "%");
+        temporaryElement.setAttribute('y1', tempY1 + "%");
+        temporaryElement.setAttribute('x2', tempX2 + "%");
+        temporaryElement.setAttribute('y2', tempY2 + "%");
+        temporaryElement.setAttribute('id', passwordData[i].IDs[j]);
+        temporaryElement.classList.add("noclick");
+        //draw an arrowhead if it's the last line
+        if(j === passwordData[i].IDs.length-2) {
+          temporaryElement.setAttribute('marker-end', "url(#arrowhead)");
+        }
+        //make it hidden if the password should currently be hidden
+        if(passwordHiddenBool == 1) {
+          temporaryElement.style.visibility = "hidden";
+        }
+        htmlGrid.appendChild(temporaryElement);
+      }
+    } else if (passwordData[i].type === "arrow"){
+      //draw an arrow
+      temporaryElement = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      tempX1 = (gridCircMargin+(gridCircDistance*passwordData[i].idStart[7]));
+      tempY1 = (gridCircMargin+(gridCircDistance*passwordData[i].idStart[9]));
+      tempX2 = (gridCircMargin+(gridCircDistance*passwordData[i].idEnd[7]));
+      tempY2 = (gridCircMargin+(gridCircDistance*passwordData[i].idEnd[9]));
+      temporaryElement.setAttribute('stroke-width', gridStrokeWidth + "%");
+      temporaryElement.setAttribute('stroke', currentColour);
+      temporaryElement.setAttribute('x1', tempX1 + "%");
+      temporaryElement.setAttribute('y1', tempY1 + "%");
+      temporaryElement.setAttribute('x2', tempX2 + "%");
+      temporaryElement.setAttribute('y2', tempY2 + "%");
+      temporaryElement.setAttribute('id', passwordData[i].id);
+      temporaryElement.setAttribute('marker-end', "url(#arrowhead)");
+      temporaryElement.classList.add("noclick");
+      //make it hidden if the password should currently be hidden
+      if(passwordHiddenBool == 1) {
+        temporaryElement.style.visibility = "hidden";
+      }
+      htmlGrid.appendChild(temporaryElement);
+    } else if (passwordData[i].type === "point") {
+      //draw a point
+      temporaryElement = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      temporaryElement.setAttribute("r", passwordDotRadius + "%");
+      temporaryElement.style.fill = currentColour;
+      tempFinalX = (gridCircMargin+(gridCircDistance*passwordData[i].id[7]));
+      tempFinalY = (gridCircMargin+(gridCircDistance*passwordData[i].id[9]));
+      temporaryElement.setAttribute("cx", tempFinalX + "%");
+      temporaryElement.setAttribute("cy", tempFinalY + "%");
+      temporaryElement.setAttribute('id', passwordData[i].id);
+      temporaryElement.classList.add("noclick");
+      //make it hidden if the password should currently be hidden
+      if(passwordHiddenBool == 1) {
+        temporaryElement.style.visibility = "hidden";
+      }
+      htmlGrid.appendChild(temporaryElement);
+    } else {
+      console.log("draw_password - error: wrong object type");
+    }
+    ++lastDrawnPasswordObjects;
+  }
+}
+
+
+
+
+
+
+//----------------------------------------------clear_inputs----------------------------------------------
+//clears the currently drawn object(s)
+function clear_input(){
+  let i;
+  //first delete the data from HTML
+  for(i = 0; i < tempDrawnPasswordNodes; ++i) {
+    //each temp object can be either an "arrow/point" or a "connected lines segment"
+    //first, if it's an "arrows/point", remove the arrow
+    if(tempDrawnPasswordData[0][1].id == "tempObjectArrow") {
+      tempDrawnPasswordData[i][0].parentNode.removeChild(tempDrawnPasswordData[i][0]);
+    }
+    //then, regardless of which type it is, remove the [i][1] index (these indexes are used for both points and connected lines)
+    tempDrawnPasswordData[i][1].parentNode.removeChild(tempDrawnPasswordData[i][1]);
+    //it can be used for both, since they can't both be drawn at once
+  }
+  //Then delete the data from JS
+  tempDrawnPasswordNodes = 0;
+  tempDrawnPasswordData = [];
+  clickInputData = [];
+  clickInputNodes = 0;
+  connectedInputData = [];
+  connectedInputNodes = 0;
+}
+
+
+
+
+
+//----------------------------------------------requirement_checker and validateEmail----------------------------------------------
+//checks if the password is within the password minimum requirements
+//
+//requirements:
+// -at least 2 colours used
+// -at least 10 unique nodes used
+//
+//input: passwordData array + passwordObjects
+//output: "boolean" 1/0 (yes/no) ("is it within requirements?")
+function requirement_checker(passwordData, passwordObjects, gridWidth, gridHeight) {
+            //used   R  G  B   "boolean" values
+  let coloursUsed = [0, 0, 0],
+      uniqueNodesUsed = [], //used coordinates, again "boolean" values
+      uniqueNodesUsedCounter = 0;
+  let i = 0, j = 0;
+  let tempX = 0, tempY = 0;
+
+  //input error handling
+  if(typeof gridHeight != "number" || typeof gridWidth != "number") {
+    console.log("requirement_checker - error: gridHeight and/or gridWidth not a number")
+    return;
+  }
+  if(typeof passwordObjects != "number") {
+    console.log("requirement_checker - error: passwordObjects not a number")
+    return;
+  }
+  if(passwordObjects == 0) {
+    return 0; //not within requirements
+  } else if (passwordObjects < 0) {
+    console.log("requirement_checker - error: passwordObjects less than 0")
+    return;
+  }
+
+
+  //finds colours used
+  for(i = 0; i < passwordObjects; ++i) {
+    if(passwordData[i].colour == "rgb(255, 52, 52)") {
+      coloursUsed[0] = 1;
+    } else if (passwordData[i].colour == "rgb(129,225,129)") {
+      coloursUsed[1] = 1;
+    } else if (passwordData[i].colour == "rgb( 24, 24,255)") {
+      coloursUsed[2] = 1;
+    } else {
+      console.log("requirement_checker - error: wrong colour");
+    }
+  }
+  //checks colours used
+  if(coloursUsed[0] + coloursUsed[1] + coloursUsed[2] < 2) {
+    //console.log("fail: colours used is " + (coloursUsed[0] + coloursUsed[1] + coloursUsed[2]));
+    return 0; //not within requirements
+  }
+
+  //makes uniqueNodesUsed into a 2D array and sets everything to 0
+  for(i = 0; i < gridHeight; ++i) {
+    uniqueNodesUsed[i] = [];
+    //set all indexes to 0
+    for(j = 0; j < gridWidth; ++j){
+      uniqueNodesUsed[i][j] = 0;
+    }
+  }
+  //finds unique nodes used
+  for(i = 0; i < passwordObjects; ++i) {
+    //separate into cases point / arrow / connected lines
+    if(passwordData[i].type == "point") {
+      tempX = passwordData[i].id[7];
+      tempY = passwordData[i].id[9];
+      uniqueNodesUsed[tempX][tempY] = 1;
+    } else if(passwordData[i].type == "arrow") {
+      tempX = passwordData[i].idStart[7];
+      tempY = passwordData[i].idStart[9];
+      uniqueNodesUsed[tempX][tempY] = 1;
+      tempX = passwordData[i].idEnd[7];
+      tempY = passwordData[i].idEnd[9];
+      uniqueNodesUsed[tempX][tempY] = 1;
+    } else if(passwordData[i].type == "connected lines") {
+      for(j = 0; j < passwordData[i].IDs.length; ++j) {
+        tempX = passwordData[i].IDs[j][7];
+        tempY = passwordData[i].IDs[j][9];
+        uniqueNodesUsed[tempX][tempY] = 1;
+      }
+    } else {
+      console.log("requirement_checker - error: wrong password object type");
+    }
+  }
+
+  //checks unique nodes used
+  for(i = 0; i < gridHeight; ++i) {
+    for(j = 0; j < gridWidth; ++j){
+      uniqueNodesUsedCounter += uniqueNodesUsed[i][j];
+    }
+  }
+  if(uniqueNodesUsedCounter < 10) {
+    //console.log("fail: nodes used is " + uniqueNodesUsedCounter);
+    return 0; //not within requirements
+  }
+  return 1; //within requirements
+}
+
+
+//email format validation, from https://stackoverflow.com/questions/46155/how-to-validate-an-email-address-in-javascript
+function validateEmail(email) {
+  var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  return re.test(String(email).toLowerCase());
+}
+
+
+
+
+
+
+//----------------------------------------------password_to_string----------------------------------------------
+//Makes a password array into a single password string
+//useful for being able to send the password to the server
+function password_to_string(password) {
+  let outputString = "";
+  let i = 0, j = 0;
+  //Checks the correctness of the input
+  if (isArray(password) != true) {
+    console.log("password_to_string - error: password not an array");
+    return;
+  }
+  //goes through all objects in the password
+  for(i = 0; i < password.length; ++i) {
+    //the undo button doesn't completely delete data, this ignores deleted data
+    if(password[i].type != undefined) {
+      //splits into cases point / arrow / connected lines
+      //always first adds the type, to make it easier to convert back into an array
+      outputString += password[i].type + " ";
+      //then always adds the colour, since every object has exactly 1 "colour" property
+      outputString += password[i].colour + " ";
+      if(password[i].type == "point") {
+        outputString += password[i].id + " ";
+      } else if(password[i].type == "arrow") {
+        outputString += password[i].id + " ";
+        outputString += password[i].idStart + " ";
+        outputString += password[i].idEnd + " ";
+      } else if(password[i].type == "connected lines") {
+        //add all the IDs
+        for(j = 0; j < password[i].IDs.length; ++j) {
+          outputString += password[i].IDs[j] + " ";
+        }
+      } else {
+        console.log("password_to_string - error: wrong object type")
+      }
+    }
+  }
+  return outputString;
+}
+
+
+//checks if an object (data, not a "password object") is an array and gives back boolean answer
+//from https://stackoverflow.com/questions/4775722/how-to-check-if-an-object-is-an-array
+function isArray(obj){
+  return !!obj && obj.constructor === Array;
+}
+
+
+
+
+
+//----------------------------------------------encrypt_string----------------------------------------------
+//encryption from https://www.movable-type.co.uk/scripts/aes.html
+
+//teststring
+//var testString = "rfajewriofjwaoigfejb ioergniggdyeiuafreygiueraybiuerayrteaiubyer";
+
+function encrypt_string(input, callback){ 
+
+  //input != string error handling
+  if (typeof input != "string"){
+    console.log("encrypt_string - error: input is not a string");
+    return;
+  }
+
+  //gets the encryption password
+  let output = "";
+  let xhr = new XMLHttpRequest();
+  xhr.open("GET", "getPassword", true);
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState === 4) {
+      output = xhr.responseText;
+      encryptionPassword = output;
+      //encrypting function
+      const ciphertext = Aes.Ctr.encrypt(input, encryptionPassword, 256);
+      /*console.log("encryption password: " + encryptionPassword);
+      console.log("ciphertext: " + ciphertext);
+      const origtext = Aes.Ctr.decrypt(ciphertext, encryptionPassword, 256);
+      console.log("original: " + origtext);*/
+
+      //returns using a callback
+      callback(ciphertext);
+    }
+  }
+  xhr.send();
+}
+
+
+
+
+
+//----------------------------------------------undo_button and reset_button----------------------------------------------
+
+//removes the most recently placed object
+//first removes the HTML element, then the JS data
+function undo_button() {
+  if(passwordObjects == 0) {
+    return; //do nothing if there's no objects
+  }
+  let temporaryID;
+  let temporaryElement = passwordData[passwordObjects-1];
+  let i = 0;
+
+  //if it's an arrow/point, delete the 1 html element
+  if(temporaryElement.type == "arrow" || temporaryElement.type == "point") {
+    temporaryID = document.getElementById(temporaryElement.id);
+    temporaryID.parentNode.removeChild(temporaryID);
+  } else {
+    //if it's a "connected lines" object, remove all the lines from HTML
+    for(i = 0; i < temporaryElement.IDs.length-1; ++i) {
+      temporaryID = document.getElementById(temporaryElement.IDs[i]);
+      temporaryID.parentNode.removeChild(temporaryID);
+    }
+  }
+
+  //delete the object from JS array
+  passwordData[passwordObjects-1] = [];
+  --passwordObjects;
+  --lastDrawnPasswordObjects;
+}
+
+//removes all placed objects
+function reset_button() {
+  let i, totalToRemove = passwordObjects;
+  for(i = 0; i < totalToRemove; ++i) {
+    undo_button();
+  }
+}
+
+
+//--------------------------------------------sign_in_or_up_finish-----------------------------------------
 //password part of login/signup
 //gets called by "login" / "sign up" buttons
 //input: inOrUp ("login" / "sign up")
@@ -839,6 +847,7 @@ function sign_in_or_up_finish(inOrUp) {
 }
 
 
+//-----------------------------------------password hiding functions-------------------------------------
 //toggles between the password being hidden or shown
 function hide_or_unhide_password(){
   switch(passwordHiddenBool){
@@ -878,6 +887,7 @@ function unhide_password() {
 }
 
 
+//----------------------------------------data retrieval-----------------------------------------------
 //gets the encryption password for AES
 let encryptionPassword = get_password();
 function get_password() {
@@ -911,11 +921,4 @@ function get_cookie(cname) {
     }
   }
   return "";
-}
-
-
-//email format validation, from https://stackoverflow.com/questions/46155/how-to-validate-an-email-address-in-javascript
-function validateEmail(email) {
-  var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-  return re.test(String(email).toLowerCase());
 }
