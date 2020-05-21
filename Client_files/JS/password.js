@@ -840,7 +840,7 @@ function sign_in_or_up_finish(inOrUp) {
 
 
 //toggles between the password being hidden or shown
-function hideOrUnhidePassword(){
+function hide_or_unhide_password(){
   switch(passwordHiddenBool){
     case 0:
       document.getElementById("hideUnhide").setAttribute("src", "hideButton.png");
