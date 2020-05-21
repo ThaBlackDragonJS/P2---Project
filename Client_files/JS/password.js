@@ -35,17 +35,6 @@ htmlGrid.style.height = gridSize;
 //Used to debugging viewport dimensions
 console.log("Width: " + vw + " Height: " + vh);
 
-//Changes password grid Size based on viewport
-function update_grid_size() {
-  vw = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-  vh = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
-  gridSize = Math.min(vw, vh) * 0.5;
-  htmlGrid.style.width = gridSize;
-  htmlGrid.style.height = gridSize;
-  gridOffsetXY[0] = (vw/2) - (gridSize/2);
-  gridOffsetXY[1] = (vh/2) - (gridSize/2);
-}
-
 
 
 
@@ -85,6 +74,17 @@ function update_page(e) {
   //console.log("mouseX " + mousePosXY[0] + " mouseY " + mousePosXY[1])
   draw_object();
   update_grid_size();
+}
+
+//Changes password grid Size based on viewport
+function update_grid_size() {
+  vw = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+  vh = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+  gridSize = Math.min(vw, vh) * 0.5;
+  htmlGrid.style.width = gridSize;
+  htmlGrid.style.height = gridSize;
+  gridOffsetXY[0] = (vw/2) - (gridSize/2);
+  gridOffsetXY[1] = (vh/2) - (gridSize/2);
 }
 
 
