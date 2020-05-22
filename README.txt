@@ -16,6 +16,8 @@ Settings in Server_files/accounts_table.js:
 
 
 
+
+
 Requirements for this server:
 -NodeJS needs to be installed
 -npm libraries required: "http", "mysql", "fs"
@@ -32,3 +34,29 @@ Initial setup of server:
 
 Starting the server:
 -run create_server.js
+
+
+
+
+
+Directories and files:
+-create_server.js  //used for starting the server
+-Client_files
+  -index.html      //webpage index + email input
+  -common
+    -other webpages used
+  -CSS
+    -styling for index & password input
+  -images
+    -all png's for webpage
+  -JS
+    -password.js   //used for both login & signup, for password part
+
+-Server_files
+  -additional files the server needs to function
+  -database modules
+
+
+
+
+
