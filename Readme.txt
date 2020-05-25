@@ -1,5 +1,5 @@
 ------Authenticator------
-
+Important note: The web-application only works on the browser Google Chrome.
 
 Settings in Server_files/create_server.js:
 -The encryption password is on line 14
