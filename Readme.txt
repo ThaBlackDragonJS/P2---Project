@@ -1,6 +1,6 @@
 ------Authenticator------
 This program is an authenticator in which the user is able to draw a password using iconography, 
-with the purpose of increasing memorability while not decreasing the security thereof. 
+with the purpose of increasing memorability while not decreasing the security. 
 The program is a product from a second semester project on Computer Science at AAU (Aalborg University) in which the theme "Authentication" was chosen. 
 
 This file explains how to setup a local server as well as describing the folder/file structure and some of the settings available.
