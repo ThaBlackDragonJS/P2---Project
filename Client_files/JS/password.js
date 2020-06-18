@@ -277,6 +277,22 @@ function update_password_input(inputEvent, inputType){
       }
     }
   }
+  
+  //special input-----------------------------------
+  if(inputType == "square release") {
+    //this is when the button gets released while on the SVG square
+    //When this happens, the current input should effectively be ended.
+
+    //generate an imaginary input event, based off the previously inputted node.
+    let inputEvent = [];
+    inputEvent.path = [];
+    inputEvent.path[0] = [];
+    inputEvent.path[0].id = clickInputData[clickInputNodes-1].id;
+    inputEvent.buttons = clickInputData[clickInputNodes-1].buttons;
+    //make the imaginary input event
+    update_password_input(inputEvent, "release");
+  }
+
   //update how the password is drawn
   draw_password();
 }
