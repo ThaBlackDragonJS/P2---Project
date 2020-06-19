@@ -42,6 +42,7 @@ console.log("Width: " + vw + " Height: " + vh);
 //variables
 let clickInputData = [], connectedInputData = [], clickInputNodes = 0, connectedInputNodes = 0;
 let passwordData = [], passwordObjects = 0;
+let connectedInputPossible = true;
 let currentColour = "rgb(255, 52, 52)";
 let lastDrawnPasswordObjects = 0; //keeps track of how many objects have been drawn in draw_password
 let tempDrawnPasswordData = [], tempDrawnPasswordNodes = 0; //keeps track of drawing in draw_object
@@ -187,6 +188,10 @@ function update_password_input(inputEvent, inputType){
       if(clickInputData[clickInputNodes-1].id === inputEvent.path[0].id){
         clickInputData[clickInputNodes-1].type = "click";
         //console.log("saved click");
+        //since there's a click, no connected input can be made, and so the connected input data is reset
+        connectedInputData = [];
+        connectedInputNodes = 0;
+        connectedInputPossible = false;
         //check if it is a point/arrow
         if(clickInputNodes >= 2 && clickInputData[clickInputNodes-2].type === "click"){
           //first, if it is a point (same id)
@@ -200,6 +205,7 @@ function update_password_input(inputEvent, inputType){
             ++passwordObjects;
             clear_input();
             //console.log("Created Point");
+            connectedInputPossible = true;
           } else { //not the same id means it's an arrow
             clickInputData[clickInputNodes-2].type = "arrow";
             //store the arrow
@@ -212,6 +218,7 @@ function update_password_input(inputEvent, inputType){
             ++passwordObjects;
             clear_input();
             //console.log("Created Arrow");
+            connectedInputPossible = true;
           }
         }
       }
@@ -219,61 +226,63 @@ function update_password_input(inputEvent, inputType){
   }
 
   //Connected lines input-------------------------
-  if (inputType === "press" && connectedInputNodes == 0) {
-    //press is the start of the input for connected lines
-    connectedInputData[connectedInputNodes] = [];
-    connectedInputData[connectedInputNodes].type = "press";
-    connectedInputData[connectedInputNodes].id = inputEvent.path[0].id;
-    ++connectedInputNodes;
-    //console.log("press detected");
-  } else if (inputType === "hover" && inputEvent.buttons === 1) {
-    //do nothing if there's no input yet, as the start condition is a press
-    if(connectedInputNodes !== 0) {
-      //if it's the same node as last then it doesn't count as a new one
-      if(connectedInputData[connectedInputNodes-1].id !== inputEvent.path[0].id){
-        //if the node is not within the 8 sorrounding the previous node, it also doesn't count
-        //first get the X and Y coordinates of the current and previous nodes
-        let currentX = parseInt(inputEvent.path[0].id[7]);
-        let currentY = parseInt(inputEvent.path[0].id[9]);
-        let priorX = parseInt(connectedInputData[connectedInputNodes-1].id[7]);
-        let priorY = parseInt(connectedInputData[connectedInputNodes-1].id[9]);
-        /*console.log("cX, cY, pX, pY");
-        console.log(currentX + " | " + currentY + " | " + priorX + " | " + priorY);
-        console.log("priorX-1 <= currentX: " + (priorX-1 <= currentX));
-        console.log("currentX <= priorX+1: " + (currentX <= (priorX+1)));
-        console.log("X coordinate within: " + (priorX-1 <= currentX && currentX <= priorX+1));*/
-        //then check if the X coordinate is within 1 distance
-        //priorX-1 <= currentX <= priorX+1
-        if(priorX-1 <= currentX && currentX <= priorX+1) {
-          //lastly do the same check for Y coordinate
-          if(priorY-1 <= currentY && currentY <= priorY+1) {
-            connectedInputData[connectedInputNodes] = [];
-            connectedInputData[connectedInputNodes].type = "hover";
-            connectedInputData[connectedInputNodes].id = inputEvent.path[0].id;
-            ++connectedInputNodes;
-            //console.log("hover detected"); 
+  if(connectedInputPossible == true) {
+    if (inputType === "press" && connectedInputNodes == 0) {
+      //press is the start of the input for connected lines
+      connectedInputData[connectedInputNodes] = [];
+      connectedInputData[connectedInputNodes].type = "press";
+      connectedInputData[connectedInputNodes].id = inputEvent.path[0].id;
+      ++connectedInputNodes;
+      //console.log("press detected");
+    } else if (inputType === "hover" && inputEvent.buttons === 1) {
+      //do nothing if there's no input yet, as the start condition is a press
+      if(connectedInputNodes !== 0) {
+        //if it's the same node as last then it doesn't count as a new one
+        if(connectedInputData[connectedInputNodes-1].id !== inputEvent.path[0].id){
+          //if the node is not within the 8 sorrounding the previous node, it also doesn't count
+          //first get the X and Y coordinates of the current and previous nodes
+          let currentX = parseInt(inputEvent.path[0].id[7]);
+          let currentY = parseInt(inputEvent.path[0].id[9]);
+          let priorX = parseInt(connectedInputData[connectedInputNodes-1].id[7]);
+          let priorY = parseInt(connectedInputData[connectedInputNodes-1].id[9]);
+          /*console.log("cX, cY, pX, pY");
+          console.log(currentX + " | " + currentY + " | " + priorX + " | " + priorY);
+          console.log("priorX-1 <= currentX: " + (priorX-1 <= currentX));
+          console.log("currentX <= priorX+1: " + (currentX <= (priorX+1)));
+          console.log("X coordinate within: " + (priorX-1 <= currentX && currentX <= priorX+1));*/
+          //then check if the X coordinate is within 1 distance
+          //priorX-1 <= currentX <= priorX+1
+          if(priorX-1 <= currentX && currentX <= priorX+1) {
+            //lastly do the same check for Y coordinate
+            if(priorY-1 <= currentY && currentY <= priorY+1) {
+              connectedInputData[connectedInputNodes] = [];
+              connectedInputData[connectedInputNodes].type = "hover";
+              connectedInputData[connectedInputNodes].id = inputEvent.path[0].id;
+              ++connectedInputNodes;
+              //console.log("hover detected"); 
+            }
           }
         }
       }
-    }
-  } else if (inputType === "release") {
-    //check if the connected lines have been started
-    if(connectedInputNodes >= 2) {
-      //if the previous node is the same node then don't make "connected lines", and instead reset the array
-      if(connectedInputData[connectedInputNodes-2].id !== inputEvent.path[0].id){
-        passwordData[passwordObjects] = [];
-        passwordData[passwordObjects].type = "connected lines";
-        passwordData[passwordObjects].IDs = [];
-        for(i = 0; i < connectedInputNodes; ++i){
-          passwordData[passwordObjects].IDs[i] = connectedInputData[i].id + " object " + passwordObjects;
+    } else if (inputType === "release") {
+      //check if the connected lines have been started
+      if(connectedInputNodes >= 2) {
+        //if the previous node is the same node then don't make "connected lines", and instead reset the array
+        if(connectedInputData[connectedInputNodes-2].id !== inputEvent.path[0].id){
+          passwordData[passwordObjects] = [];
+          passwordData[passwordObjects].type = "connected lines";
+          passwordData[passwordObjects].IDs = [];
+          for(i = 0; i < connectedInputNodes; ++i){
+            passwordData[passwordObjects].IDs[i] = connectedInputData[i].id + " object " + passwordObjects;
+          }
+          passwordData[passwordObjects].colour = currentColour;
+          ++passwordObjects;
+          clear_input();
+          //console.log("release detected"); 
+        } else {
+          connectedInputNodes = 0;
+          connectedInputData = [];
         }
-        passwordData[passwordObjects].colour = currentColour;
-        ++passwordObjects;
-        clear_input();
-        //console.log("release detected"); 
-      } else {
-        connectedInputNodes = 0;
-        connectedInputData = [];
       }
     }
   }
