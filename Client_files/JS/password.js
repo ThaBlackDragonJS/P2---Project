@@ -180,10 +180,11 @@ function update_password_input(inputEvent, inputType){
     clickInputData[clickInputNodes].type = "press";
     clickInputData[clickInputNodes].id = inputEvent.path[0].id;
     clickInputData[clickInputNodes].buttons = inputEvent.buttons;
+    clickInputData[clickInputNodes].colour = currentColour;
     ++clickInputNodes;
   } else if (inputType === "release") {
     //console.log("detected release")
-    //if the previous input was a press, and it is now released, it can only be a click
+    //if the previous input was a press, and it is now released on the same node, it can only be a click
     if(clickInputData[clickInputNodes-1].type === "press"){
       if(clickInputData[clickInputNodes-1].id === inputEvent.path[0].id){
         clickInputData[clickInputNodes-1].type = "click";
@@ -201,7 +202,7 @@ function update_password_input(inputEvent, inputType){
             passwordData[passwordObjects] = []; //make it a 2D array
             passwordData[passwordObjects].type = "point";
             passwordData[passwordObjects].id = clickInputData[clickInputNodes-2].id + " object " + passwordObjects;
-            passwordData[passwordObjects].colour = currentColour;
+            passwordData[passwordObjects].colour = clickInputData[clickInputNodes-2].colour;
             ++passwordObjects;
             clear_input();
             //console.log("Created Point");
@@ -214,7 +215,7 @@ function update_password_input(inputEvent, inputType){
             passwordData[passwordObjects].id = "circle arr" + " object " + passwordObjects;
             passwordData[passwordObjects].idStart = clickInputData[clickInputNodes-2].id;
             passwordData[passwordObjects].idEnd = inputEvent.path[0].id;
-            passwordData[passwordObjects].colour = currentColour;
+            passwordData[passwordObjects].colour = clickInputData[clickInputNodes-2].colour;
             ++passwordObjects;
             clear_input();
             //console.log("Created Arrow");
@@ -490,7 +491,7 @@ function draw_password() {
         tempX2 = (gridCircMargin+(gridCircDistance*passwordData[i].IDs[j+1][7]));
         tempY2 = (gridCircMargin+(gridCircDistance*passwordData[i].IDs[j+1][9]));
         temporaryElement.setAttribute('stroke-width', gridStrokeWidth + "%");
-        temporaryElement.setAttribute('stroke', currentColour);
+        temporaryElement.setAttribute('stroke', passwordData[i].colour);
         temporaryElement.setAttribute('x1', tempX1 + "%");
         temporaryElement.setAttribute('y1', tempY1 + "%");
         temporaryElement.setAttribute('x2', tempX2 + "%");
@@ -515,7 +516,7 @@ function draw_password() {
       tempX2 = (gridCircMargin+(gridCircDistance*passwordData[i].idEnd[7]));
       tempY2 = (gridCircMargin+(gridCircDistance*passwordData[i].idEnd[9]));
       temporaryElement.setAttribute('stroke-width', gridStrokeWidth + "%");
-      temporaryElement.setAttribute('stroke', currentColour);
+      temporaryElement.setAttribute('stroke', passwordData[i].colour);
       temporaryElement.setAttribute('x1', tempX1 + "%");
       temporaryElement.setAttribute('y1', tempY1 + "%");
       temporaryElement.setAttribute('x2', tempX2 + "%");
@@ -532,7 +533,7 @@ function draw_password() {
       //draw a point
       temporaryElement = document.createElementNS("http://www.w3.org/2000/svg", "circle");
       temporaryElement.setAttribute("r", passwordDotRadius + "%");
-      temporaryElement.style.fill = currentColour;
+      temporaryElement.style.fill = passwordData[i].colour;
       tempFinalX = (gridCircMargin+(gridCircDistance*passwordData[i].id[7]));
       tempFinalY = (gridCircMargin+(gridCircDistance*passwordData[i].id[9]));
       temporaryElement.setAttribute("cx", tempFinalX + "%");
