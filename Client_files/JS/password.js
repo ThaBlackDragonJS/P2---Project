@@ -122,10 +122,6 @@ function initiate_password_grid() {
       tempY = (gridCircMargin+(gridCircDistance*i));
       temporaryElement.setAttribute("cx", tempX + "%");
       temporaryElement.setAttribute("cy", tempY + "%");
-      //temporaryElement.style.r = gridCircRadius; is now done in css
-      temporaryElement.style.stroke = gridStroke;
-      temporaryElement.style["stroke-width"] = gridStrokeWidth;
-      temporaryElement.style.fill = gridFill;
       temporaryElement.classList.add("node");
 
       //assigns ID and actions
