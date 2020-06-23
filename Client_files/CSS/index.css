@@ -11,7 +11,7 @@ div.header {
 }
 
 .title {
-  font-size: 60px;
+  font-size: 8vh;
   text-align: center;
   margin-top: 5vh;
   margin-bottom: 0px;
@@ -22,28 +22,27 @@ div.inputForm {
 }
 
 .subtitle {
-  font-size: 40px;
+  font-size: 5vh;
   text-align: center;
   margin-top: 0vh;
   margin-bottom: 20vh;
   }
 
 .emailInputFlavorText {
-  font-size: 40px;
+  font-size: 4vh;
   text-align: center;
-  margin-bottom: 25px;
+  margin-bottom: 3vh;
 }
 
 input[type=email] {
-  width: 85vw;
-  max-width: 1000px;
-  height: 40px;
-  font-size: 32px;
+  width: 60vw;
+  height: 5vh;
+  font-size: 3.5vh;
   border-style: solid;
   border-color: rgb(112,112,112);
-  border-width: 2px;
-  border-radius: 20px;
-  padding: 10px;
+  border-width: 0.2vh;
+  border-radius: 2vh;
+  padding: 1vh;
   cursor: pointer;
   position: relative;
   display: block;
@@ -51,19 +50,17 @@ input[type=email] {
 }
 
 input[type=email]:hover {
-  border-width: 3px;
+  border-width: 0.3vh;
 }
 
 .signupButton {
   background-color: rgb(45,45,158);
   border: none;
-  border-radius: 22px;
+  border-radius: 2vh;
   width: 20vw;
-  min-width: 170px;
-  max-width: 300px;
-  height: 70px;
+  height: 7vh;
   color: rgb(255,255,255);
-  font-size: 32px;
+  font-size: 4vh;
   text-align: center;
   padding: 0px;
   display: inline-block;
@@ -79,13 +76,11 @@ input[type=email]:hover {
 .loginButton {
   background-color: rgb(45,45,158);
   border: none;
-  border-radius: 22px;
+  border-radius: 2vh;
   width: 20%;
-  min-width: 170px;
-  max-width: 300px;
-  height: 70px;
+  height: 7vh;
   color: rgb(255,255,255);
-  font-size: 32px;
+  font-size: 4vh;
   text-align: center;
   padding: 0px;
   display: inline-block;
