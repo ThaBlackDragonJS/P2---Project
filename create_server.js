@@ -20,8 +20,8 @@ let body = '';
 //maxID is a prime number halfway between two powers of 2 - should be good for hashing
 //maxID is used for assigning an ID to users, however, the implementation has not been entirely completed.
 //currently, different users can get the same ID, since the re-index function has not been used.
-const maxID = 7069;
-gridHeight = 5, gridWidth = gridHeight;
+const maxID = 7069,
+      gridHeight = 5, gridWidth = gridHeight;
 
 
 let server = createServer((request, response) => {
@@ -333,7 +333,7 @@ function password_string_to_array(passwordString) {
   let pointLength = 5,
       arrowLength = 5,
       connectedLength = 15;
-
+ 
   //the length of a string containing an RGB colour
   let colourLength = 16;
 
